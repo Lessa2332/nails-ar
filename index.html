@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
-  <title>Nail AR Try-On</title>
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💅</text></svg>">
+  <title>New Year Nail AR Try-On 2026</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎄</text></svg>">
   <style>
     * {
       margin: 0;
@@ -198,9 +198,8 @@
       justify-content: center;
       color: white;
       font-weight: bold;
-      font-size: 10px;
+      font-size: 12px;
       text-align: center;
-      line-height: 1.1;
     }
     .mask-btn:hover { 
       transform: scale(1.1); 
@@ -290,13 +289,29 @@
       to { opacity: 1; transform: translateX(-50%) translateY(0); }
     }
 
+    /* Snowflakes */
+    .snowflake {
+      position: absolute;
+      top: -10px;
+      color: white;
+      font-size: 1em;
+      user-select: none;
+      z-index: 5;
+      pointer-events: none;
+      animation: fall linear infinite;
+    }
+
+    @keyframes fall {
+      to { transform: translateY(100vh) rotate(360deg); }
+    }
+
     @media (max-width: 768px) {
       .control-btn { width: 44px; height: 44px; font-size: 17px; }
       #authorBtn { width: 50px; height: 50px; top: 74px; font-size: 22px; }
       #modeControls { top: 18px; gap: 8px; padding: 5px 10px; }
       .mode-btn { padding: 7px 14px; font-size: 12px; }
       .design-btn { width: 50px; height: 75px; }
-      .mask-btn { width: 50px; height: 50px; font-size: 9px; }
+      .mask-btn { width: 50px; height: 50px; font-size: 10px; }
       #maskPicker { bottom: 140px; }
     }
   </style>
@@ -304,7 +319,7 @@
 <body>
   <div id="loading">
     <div class="loader"></div>
-    <div id="loadingText">Loading Nail AR Magic...</div>
+    <div id="loadingText">Loading New Year Nail Magic...</div>
     <p>Please allow camera access</p>
   </div>
 
@@ -315,7 +330,7 @@
   <input type="file" id="designUpload" accept="image/*" style="display: none;">
 
   <button id="langBtn" class="control-btn" aria-label="Switch language">UK</button>
-  <button id="soundBtn" class="control-btn" aria-label="Toggle sound">🔇</button>
+  <button id="soundBtn" class="control-btn" aria-label="Toggle sound">Sound</button>
   <button id="uploadBtn" class="control-btn" aria-label="Upload custom design">📁</button>
 
   <a href="https://smartlessa.etsy.com" target="_blank" id="authorBtn" aria-label="Author: smartlessa.etsy.com">
@@ -380,8 +395,8 @@
 
     const translations = {
       en: {
-        title: "Nail AR Try-On",
-        loading: "Loading Nail AR Magic...",
+        title: "New Year Nail AR Try-On 2026",
+        loading: "Loading New Year Nail Magic...",
         cameraPrompt: "Please allow camera access",
         allFingers: "All Fingers",
         pickFinger: "Select Finger",
@@ -392,8 +407,8 @@
         handNotDetected: "Show your hand"
       },
       uk: {
-        title: "Манікюр AR",
-        loading: "Завантаження манікюру AR...",
+        title: "Новорічний манікюр AR 2026",
+        loading: "Завантаження новорічного манікюру...",
         cameraPrompt: "Дозвольте доступ до камери",
         allFingers: "Усі пальці",
         pickFinger: "Обрати палець",
@@ -411,7 +426,7 @@
       currentMask: "none",
       isApplyAll: true,
       selectedFingerIndex: -1,
-      isMuted: true,
+      isMuted: false,
       lastLandmarks: null,
       smoothedLandmarks: null,
       handNotDetectedCount: 0,
@@ -452,39 +467,186 @@
     resizeCanvases();
     window.addEventListener('resize', resizeCanvases);
 
-    // Видалено аудіо - використовуємо тільки візуальні ефекти
-    const audio = {
-      click: new Audio("data:audio/wav;base64,UklGRigAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQQAAAAAAA==")
-    };
+    // Create snowflakes
+    function createSnowflakes() {
+      const snowflakesContainer = document.createElement('div');
+      snowflakesContainer.id = 'snowflakes';
+      document.body.appendChild(snowflakesContainer);
+      
+      for (let i = 0; i < 50; i++) {
+        const snowflake = document.createElement('div');
+        snowflake.className = 'snowflake';
+        snowflake.innerHTML = '❄';
+        snowflake.style.left = Math.random() * 100 + 'vw';
+        snowflake.style.animationDuration = Math.random() * 3 + 2 + 's';
+        snowflake.style.opacity = Math.random();
+        snowflake.style.fontSize = Math.random() * 10 + 10 + 'px';
+        snowflake.style.animationDelay = Math.random() * 5 + 's';
+        snowflakesContainer.appendChild(snowflake);
+      }
+    }
 
+    // Використовуємо існуючі аудіофайли
+    const audio = {
+      bgMusic: new Audio('audio/bg-music.mp3'),
+      click: new Audio('audio/click.mp3')
+    };
+    audio.bgMusic.loop = true;
+    audio.bgMusic.volume = 0.4;
+    audio.click.volume = 0.5;
+
+    // Зменшуємо кількість дизайнів до 3
     const DESIGNS = ["1", "2", "3"];
-    
     const MASKS = [
       { id: "none", name: "None" },
       { id: "oval", name: "Oval" },
-      { id: "round", name: "Round" },
-      { id: "square", name: "Square" },
-      { id: "squoval", name: "Squoval" },
-      { id: "almond", name: "Almond" },
-      { id: "stiletto", name: "Stiletto" },
-      { id: "ballerina", name: "Ballerina" },
-      { id: "lipstick", name: "Lipstick" },
-      { id: "edge", name: "Edge" },
+      { id: "rounded-square", name: "Rounded Square" },
       { id: "fleur", name: "Fleur" },
       { id: "gel", name: "Gel Effect" }
     ];
-    
     const nailTextures = {};
 
-    // ГЛОБАЛЬНІ ЗМІННІ - як у старому робочому коді
     let scene, camera, renderer;
     const nails = {};
     let handLandmarker;
 
-    class NailARApplication {
-      constructor() { 
-        this.init(); 
+    const NAIL_SHADER = {
+      vertexShader: `
+        varying vec2 vUv;
+        varying vec3 vNormal;
+        varying vec3 vViewPosition;
+        void main() {
+          vUv = uv;
+          vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
+          vViewPosition = -mvPosition.xyz;
+          vNormal = normalize(normalMatrix * normal);
+          gl_Position = projectionMatrix * mvPosition;
+        }
+      `,
+      fragmentShader: `
+        uniform sampler2D map;
+        uniform float time;
+        uniform float shineIntensity;
+        uniform int maskType;
+        varying vec2 vUv;
+        varying vec3 vNormal;
+        varying vec3 vViewPosition;
+
+        vec3 holiday(float t) {
+          return vec3(
+            0.5 + 0.5 * sin(t),
+            0.5 + 0.5 * sin(t + 2.0),
+            0.5 + 0.5 * sin(t + 4.0)
+          );
+        }
+
+        // Функції для масок
+        float ovalMask(vec2 uv) {
+          vec2 center = vec2(0.5, 0.5);
+          vec2 d = uv - center;
+          float r = 0.5;
+          float ellipse = (d.x * d.x) / (r * r) + (d.y * d.y) / (r * r * 0.7);
+          return step(ellipse, 1.0);
+        }
+
+        float roundedSquareMask(vec2 uv) {
+          vec2 center = vec2(0.5, 0.5);
+          vec2 d = abs(uv - center);
+          float radius = 0.1;
+          vec2 q = d - vec2(0.5 - radius);
+          float dist = length(max(q, 0.0)) + min(max(q.x, q.y), 0.0) - radius;
+          return step(dist, 0.0);
+        }
+
+        float fleurMask(vec2 uv) {
+          vec2 center = vec2(0.5, 0.5);
+          vec2 d = uv - center;
+          float angle = atan(d.y, d.x);
+          float r = length(d) * 2.0;
+          float flower = 0.5 + 0.3 * cos(6.0 * angle);
+          return step(r, flower);
+        }
+
+        float gelEffect(vec2 uv) {
+          vec2 center = vec2(0.5, 0.5);
+          float dist = distance(uv, center);
+          float shine = 0.8 + 0.2 * sin(time * 3.0 + dist * 10.0);
+          return shine;
+        }
+
+        void main() {
+          vec4 texColor = texture2D(map, vUv);
+          if (texColor.a < 0.1) discard;
+
+          vec3 color = texColor.rgb;
+
+          // Застосовуємо маску
+          float mask = 1.0;
+          if (maskType == 1) {
+            mask = ovalMask(vUv);
+          } else if (maskType == 2) {
+            mask = roundedSquareMask(vUv);
+          } else if (maskType == 3) {
+            mask = fleurMask(vUv);
+          }
+          
+          if (mask < 0.5) discard;
+
+          // Ефект гель-лаку
+          if (maskType == 4) {
+            float gel = gelEffect(vUv);
+            color *= gel;
+          }
+
+          float shine = smoothstep(0.3, 0.7, vUv.y + sin(vUv.y * 8.0 - time * 1.5) * 0.1);
+          shine = pow(shine, 2.0) * 0.5;
+          vec3 highlight = holiday(time * 3.0) * shine * shineIntensity;
+
+          float fresnel = pow(1.0 - dot(normalize(vViewPosition), vNormal), 3.0);
+          vec3 rim = vec3(1.0, 0.9, 0.8) * fresnel * 0.3;
+
+          float shadow = smoothstep(0.0, 0.25, vUv.y);
+          color *= (1.0 - shadow * 0.25);
+
+          color = color + highlight + rim;
+          gl_FragColor = vec4(color, texColor.a * mask);
+        }
+      `
+    };
+
+    class ConfettiParticle {
+      constructor(x, y) {
+        this.x = x; this.y = y;
+        this.vx = (Math.random() - 0.5) * 8;
+        this.vy = Math.random() * -15 - 5;
+        this.size = Math.random() * 6 + 4;
+        this.color = `hsl(${Math.random() * 60 + 180}, 100%, 70%)`;
+        this.life = 1.0;
+        this.gravity = 0.4;
+        this.rotation = Math.random() * Math.PI * 2;
+        this.spin = (Math.random() - 0.5) * 0.3;
       }
+      update() {
+        this.vy += this.gravity;
+        this.x += this.vx;
+        this.y += this.vy;
+        this.life -= 0.015;
+        this.rotation += this.spin;
+      }
+      draw(ctx) {
+        if (this.life <= 0) return;
+        ctx.save();
+        ctx.globalAlpha = this.life;
+        ctx.translate(this.x, this.y);
+        ctx.rotate(this.rotation);
+        ctx.fillStyle = this.color;
+        ctx.fillRect(-this.size / 2, -this.size / 2, this.size, this.size);
+        ctx.restore();
+      }
+    }
+
+    class NailARApplication {
+      constructor() { this.init(); }
 
       async init() {
         try {
@@ -493,17 +655,35 @@
           await this.initWebGL();
           await this.setupHandTracking();
           await this.loadResources();
+          this.setupAudio();
           this.updateUI();
           this.hideLoading();
           this.startRenderLoop();
-          this.updateSoundButton();
+          this.unlockAudio();
+          createSnowflakes();
         } catch (error) {
           this.handleError(error);
         }
       }
 
+      unlockAudio() {
+        const unlock = () => {
+          if (state.isAudioUnlocked) return;
+          state.isAudioUnlocked = true;
+          if (!state.isMuted) {
+            audio.bgMusic.play().catch(() => {});
+          }
+          document.removeEventListener('click', unlock);
+          document.removeEventListener('touchstart', unlock);
+        };
+        document.addEventListener('click', unlock, { once: true });
+        document.addEventListener('touchstart', unlock, { once: true });
+      }
+
+      setupAudio() {}
+
       playSound(sound) {
-        if (state.isMuted) return;
+        if (state.isMuted || !state.isAudioUnlocked) return;
         try {
           sound.currentTime = 0;
           sound.play().catch(() => {});
@@ -512,6 +692,11 @@
 
       toggleSound() {
         state.isMuted = !state.isMuted;
+        if (state.isMuted) {
+          audio.bgMusic.pause();
+        } else if (state.isAudioUnlocked) {
+          audio.bgMusic.play().catch(() => {});
+        }
         this.updateSoundButton();
         this.playSound(audio.click);
       }
@@ -524,32 +709,17 @@
         elements.applyAllBtn.addEventListener('click', () => this.setApplyAllMode());
         elements.selectFingerBtn.addEventListener('click', () => this.setSelectFingerMode());
         elements.canvas.addEventListener('click', (e) => this.handleCanvasClick(e));
-        elements.canvas.addEventListener('touchstart', (e) => {
-          e.preventDefault();
-          this.handleCanvasClick(e);
-        });
+        elements.canvas.addEventListener('touchstart', (e) => this.handleCanvasClick(e));
         window.addEventListener('resize', () => { this.handleResize(); resizeCanvases(); });
         window.addEventListener('beforeunload', () => this.cleanup());
       }
 
       async setupCamera() {
         try {
-          const constraints = { 
-            video: { 
-              facingMode: "environment", 
-              width: { ideal: 1280 }, 
-              height: { ideal: 720 }, 
-              frameRate: { ideal: 30 } 
-            } 
-          };
+          const constraints = { video: { facingMode: "environment", width: { ideal: 1280 }, height: { ideal: 720 }, frameRate: { ideal: 30 } } };
           const stream = await navigator.mediaDevices.getUserMedia(constraints);
           elements.video.srcObject = stream;
-          await new Promise(r => { 
-            elements.video.onloadedmetadata = () => { 
-              elements.video.play(); 
-              r(); 
-            }; 
-          });
+          await new Promise(r => { elements.video.onloadedmetadata = () => { elements.video.play(); r(); }; });
           this.showCameraIndicator();
         } catch (error) {
           console.error('Camera setup failed:', error);
@@ -559,18 +729,9 @@
 
       async initWebGL() {
         scene = new THREE.Scene();
-        camera = new THREE.OrthographicCamera(
-          -window.innerWidth / 2, window.innerWidth / 2, 
-          window.innerHeight / 2, -window.innerHeight / 2, 
-          0.1, 1000
-        );
+        camera = new THREE.OrthographicCamera(-window.innerWidth / 2, window.innerWidth / 2, window.innerHeight / 2, -window.innerHeight / 2, 0.1, 1000);
         camera.position.z = 10;
-        renderer = new THREE.WebGLRenderer({ 
-          canvas: elements.canvas, 
-          alpha: true, 
-          antialias: true, 
-          powerPreference: "high-performance" 
-        });
+        renderer = new THREE.WebGLRenderer({ canvas: elements.canvas, alpha: true, antialias: true, powerPreference: "high-performance" });
         renderer.setSize(window.innerWidth, window.innerHeight);
         renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
         this.createNails();
@@ -584,175 +745,8 @@
             shineIntensity: { value: 1.0 },
             maskType: { value: 0 }
           },
-          vertexShader: `
-            varying vec2 vUv;
-            varying vec3 vNormal;
-            varying vec3 vViewPosition;
-            void main() {
-              vUv = uv;
-              vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
-              vViewPosition = -mvPosition.xyz;
-              vNormal = normalize(normalMatrix * normal);
-              gl_Position = projectionMatrix * mvPosition;
-            }
-          `,
-          fragmentShader: `
-            uniform sampler2D map;
-            uniform float time;
-            uniform float shineIntensity;
-            uniform int maskType;
-            varying vec2 vUv;
-            varying vec3 vNormal;
-            varying vec3 vViewPosition;
-
-            vec3 holiday(float t) {
-              return vec3(
-                0.5 + 0.5 * sin(t),
-                0.5 + 0.5 * sin(t + 2.0),
-                0.5 + 0.5 * sin(t + 4.0)
-              );
-            }
-
-            float ovalMask(vec2 uv) {
-              vec2 center = vec2(0.5, 0.5);
-              vec2 d = uv - center;
-              float r = 0.5;
-              float ellipse = (d.x * d.x) / (r * r) + (d.y * d.y) / (r * r * 0.7);
-              return step(ellipse, 1.0);
-            }
-
-            float roundMask(vec2 uv) {
-              vec2 center = vec2(0.5, 0.5);
-              float dist = distance(uv, center);
-              return step(dist, 0.5);
-            }
-
-            float squareMask(vec2 uv) {
-              vec2 d = abs(uv - vec2(0.5));
-              return step(max(d.x, d.y), 0.5);
-            }
-
-            float squovalMask(vec2 uv) {
-              vec2 center = vec2(0.5, 0.5);
-              vec2 d = abs(uv - center);
-              float radius = 0.1;
-              vec2 q = d - vec2(0.5 - radius);
-              float dist = length(max(q, 0.0)) + min(max(q.x, q.y), 0.0) - radius;
-              return step(dist, 0.0);
-            }
-
-            float almondMask(vec2 uv) {
-              vec2 center = vec2(0.5, 0.5);
-              vec2 d = uv - center;
-              float width = 0.5;
-              float height = 0.7;
-              float curve = 0.3 * sin((uv.y - 0.5) * 3.14159);
-              float almond = (d.x * d.x) / ((width - curve) * (width - curve)) + (d.y * d.y) / (height * height);
-              return step(almond, 1.0);
-            }
-
-            float stilettoMask(vec2 uv) {
-              vec2 center = vec2(0.5, 0.5);
-              vec2 d = uv - center;
-              float tip = 0.8 - uv.y * 0.6;
-              float stiletto = (d.x * d.x) / (tip * tip) + (d.y * d.y) / (0.3 * 0.3);
-              return step(stiletto, 1.0);
-            }
-
-            float ballerinaMask(vec2 uv) {
-              vec2 center = vec2(0.5, 0.5);
-              vec2 d = abs(uv - center);
-              float top = 0.5 - uv.y * 0.3;
-              float sides = 0.4 - (uv.y - 0.5) * 0.5;
-              float coffin = step(d.x, mix(top, sides, uv.y));
-              return coffin;
-            }
-
-            float lipstickMask(vec2 uv) {
-              vec2 center = vec2(0.5, 0.5);
-              vec2 d = uv - center;
-              float tip = 0.6 - uv.y * 0.4;
-              float flatTop = step(uv.y, 0.3) ? 0.5 : tip;
-              float lipstick = (d.x * d.x) / (flatTop * flatTop) + (d.y * d.y) / (0.4 * 0.4);
-              return step(lipstick, 1.0);
-            }
-
-            float edgeMask(vec2 uv) {
-              vec2 center = vec2(0.5, 0.5);
-              vec2 d = abs(uv - center);
-              float edge = step(d.x, 0.5 - (uv.y - 0.5) * 0.3);
-              return edge;
-            }
-
-            float fleurMask(vec2 uv) {
-              vec2 center = vec2(0.5, 0.5);
-              vec2 d = uv - center;
-              float angle = atan(d.y, d.x);
-              float r = length(d) * 2.0;
-              float flower = 0.5 + 0.3 * cos(6.0 * angle);
-              return step(r, flower);
-            }
-
-            float gelEffect(vec2 uv) {
-              vec2 center = vec2(0.5, 0.5);
-              float dist = distance(uv, center);
-              float shine = 0.8 + 0.2 * sin(time * 3.0 + dist * 10.0);
-              return shine;
-            }
-
-            void main() {
-              vec4 texColor = texture2D(map, vUv);
-              if (texColor.a < 0.1) discard;
-
-              vec3 color = texColor.rgb;
-
-              float mask = 1.0;
-              if (maskType == 1) {
-                mask = ovalMask(vUv);
-              } else if (maskType == 2) {
-                mask = roundMask(vUv);
-              } else if (maskType == 3) {
-                mask = squareMask(vUv);
-              } else if (maskType == 4) {
-                mask = squovalMask(vUv);
-              } else if (maskType == 5) {
-                mask = almondMask(vUv);
-              } else if (maskType == 6) {
-                mask = stilettoMask(vUv);
-              } else if (maskType == 7) {
-                mask = ballerinaMask(vUv);
-              } else if (maskType == 8) {
-                mask = lipstickMask(vUv);
-              } else if (maskType == 9) {
-                mask = edgeMask(vUv);
-              } else if (maskType == 10) {
-                mask = fleurMask(vUv);
-              }
-              
-              if (mask < 0.5) discard;
-
-              // Гель-ефект тепер включає базову маску
-              if (maskType == 11) {
-                float baseMask = roundMask(vUv);
-                if (baseMask < 0.5) discard;
-                float gel = gelEffect(vUv);
-                color *= gel;
-              }
-
-              float shine = smoothstep(0.3, 0.7, vUv.y + sin(vUv.y * 8.0 - time * 1.5) * 0.1);
-              shine = pow(shine, 2.0) * 0.5;
-              vec3 highlight = holiday(time * 3.0) * shine * shineIntensity;
-
-              float fresnel = pow(1.0 - dot(normalize(vViewPosition), vNormal), 3.0);
-              vec3 rim = vec3(1.0, 0.9, 0.8) * fresnel * 0.3;
-
-              float shadow = smoothstep(0.0, 0.25, vUv.y);
-              color *= (1.0 - shadow * 0.25);
-
-              color = color + highlight + rim;
-              gl_FragColor = vec4(color, texColor.a * mask);
-            }
-          `,
+          vertexShader: NAIL_SHADER.vertexShader,
+          fragmentShader: NAIL_SHADER.fragmentShader,
           transparent: true,
           side: THREE.DoubleSide,
           depthTest: false,
@@ -773,20 +767,12 @@
       }
 
       async setupHandTracking() {
-        try {
-          const vision = await FilesetResolver.forVisionTasks("https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.3/wasm");
-          handLandmarker = await HandLandmarker.createFromOptions(vision, {
-            baseOptions: { 
-              modelAssetPath: "https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/1/hand_landmarker.task", 
-              delegate: "GPU" 
-            },
-            runningMode: "VIDEO",
-            numHands: 2
-          });
-        } catch (error) {
-          console.error('Hand tracking setup failed:', error);
-          throw new Error('HAND_TRACKING_ERROR');
-        }
+        const vision = await FilesetResolver.forVisionTasks("https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.3/wasm");
+        handLandmarker = await HandLandmarker.createFromOptions(vision, {
+          baseOptions: { modelAssetPath: "https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/1/hand_landmarker.task", delegate: "GPU" },
+          runningMode: "VIDEO",
+          numHands: 1
+        });
       }
 
       async loadResources() {
@@ -801,12 +787,11 @@
           img.crossOrigin = "anonymous";
           img.src = `nails/halloween/${name}.png`;
           img.onload = () => {
-            // ВИПРАВЛЕННЯ: Використовуємо THREE.Texture замість CanvasTexture
-            const texture = new THREE.Texture(img);
+            // ВИПРАВЛЕННЯ: Повертаємо CanvasTexture як у робочій версії
+            const texture = new THREE.CanvasTexture(img);
             texture.minFilter = THREE.LinearFilter;
             texture.magFilter = THREE.LinearFilter;
             texture.generateMipmaps = false;
-            texture.needsUpdate = true;
             nailTextures[name] = texture;
             resolve();
           };
@@ -818,8 +803,7 @@
             ctx.fillStyle = '#00c6ff'; ctx.fillRect(0, 0, 100, 170);
             ctx.fillStyle = 'white'; ctx.font = '16px Arial'; ctx.textAlign = 'center';
             ctx.fillText(name, 50, 90);
-            const texture = new THREE.CanvasTexture(canvas);
-            nailTextures[name] = texture;
+            nailTextures[name] = new THREE.CanvasTexture(canvas);
             resolve();
           };
         });
@@ -835,7 +819,7 @@
           btn.src = `nails/halloween/${name}.png`;
           btn.className = `design-btn ${name === state.currentDesign ? 'selected' : ''}`;
           btn.alt = `Design ${name}`;
-          btn.dataset.id = name;
+          btn.dataset.id = name; // ВИПРАВЛЕННЯ: Додаємо dataset.id
           btn.loading = 'lazy';
           btn.addEventListener('click', () => { this.selectDesign(name); });
           elements.designPicker.appendChild(btn);
@@ -847,7 +831,7 @@
           btn.src = design.url;
           btn.className = `design-btn ${design.id === state.currentDesign ? 'selected' : ''}`;
           btn.alt = `Custom Design`;
-          btn.dataset.id = design.id;
+          btn.dataset.id = design.id; // ВИПРАВЛЕННЯ: Додаємо dataset.id
           btn.loading = 'lazy';
           btn.addEventListener('click', () => { this.selectDesign(design.id); });
           elements.designPicker.appendChild(btn);
@@ -868,7 +852,7 @@
       startRenderLoop() {
         const render = () => {
           this.detectHands();
-          this.renderAR(); // ВИПРАВЛЕННЯ: завжди рендеримо
+          this.renderAR();
           this.updateConfetti();
           this.updateHolidayShine();
 
@@ -910,7 +894,6 @@
           if (predictions.landmarks?.length > 0) {
             state.handNotDetectedCount = 0;
             this.hideHandIndicator();
-            // Використовуємо першу виявлену руку
             const landmarks = predictions.landmarks[0];
             state.lastLandmarks = this.smoothLandmarks(landmarks);
             this.calculateHandSize(landmarks);
@@ -1110,12 +1093,11 @@
         reader.onload = (e) => {
           const img = new Image();
           img.onload = () => {
-            // ВИПРАВЛЕННЯ: Використовуємо THREE.Texture замість CanvasTexture
-            const texture = new THREE.Texture(img);
+            // ВИПРАВЛЕННЯ: Повертаємо CanvasTexture як у робочій версії
+            const texture = new THREE.CanvasTexture(img);
             texture.minFilter = THREE.LinearFilter;
             texture.magFilter = THREE.LinearFilter;
             texture.generateMipmaps = false;
-            texture.needsUpdate = true;
             
             const designId = `custom_${Date.now()}`;
             
@@ -1160,7 +1142,7 @@
       }
 
       updateSoundButton() {
-        elements.soundBtn.textContent = state.isMuted ? '🔇' : '🔊';
+        elements.soundBtn.textContent = state.isMuted ? 'Muted' : 'Sound';
       }
 
       showCameraIndicator() {
@@ -1204,37 +1186,6 @@
         if (state.animationFrameId) cancelAnimationFrame(state.animationFrameId);
         if (elements.video.srcObject) elements.video.srcObject.getTracks().forEach(track => track.stop());
         if (handLandmarker) handLandmarker.close();
-      }
-    }
-
-    class ConfettiParticle {
-      constructor(x, y) {
-        this.x = x; this.y = y;
-        this.vx = (Math.random() - 0.5) * 8;
-        this.vy = Math.random() * -15 - 5;
-        this.size = Math.random() * 6 + 4;
-        this.color = `hsl(${Math.random() * 60 + 180}, 100%, 70%)`;
-        this.life = 1.0;
-        this.gravity = 0.4;
-        this.rotation = Math.random() * Math.PI * 2;
-        this.spin = (Math.random() - 0.5) * 0.3;
-      }
-      update() {
-        this.vy += this.gravity;
-        this.x += this.vx;
-        this.y += this.vy;
-        this.life -= 0.015;
-        this.rotation += this.spin;
-      }
-      draw(ctx) {
-        if (this.life <= 0) return;
-        ctx.save();
-        ctx.globalAlpha = this.life;
-        ctx.translate(this.x, this.y);
-        ctx.rotate(this.rotation);
-        ctx.fillStyle = this.color;
-        ctx.fillRect(-this.size / 2, -this.size / 2, this.size, this.size);
-        ctx.restore();
       }
     }
 
