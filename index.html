@@ -330,7 +330,7 @@
   <input type="file" id="designUpload" accept="image/*" style="display: none;">
 
   <button id="langBtn" class="control-btn" aria-label="Switch language">UK</button>
-  <button id="soundBtn" class="control-btn" aria-label="Toggle sound">Sound</button>
+  <button id="soundBtn" class="control-btn" aria-label="Toggle sound">🔇</button>
   <button id="uploadBtn" class="control-btn" aria-label="Upload custom design">📁</button>
 
   <a href="https://smartlessa.etsy.com" target="_blank" id="authorBtn" aria-label="Author: smartlessa.etsy.com">
@@ -426,7 +426,7 @@
       currentMask: "none",
       isApplyAll: true,
       selectedFingerIndex: -1,
-      isMuted: false,
+      isMuted: true, // Початково вимкнено звук
       lastLandmarks: null,
       smoothedLandmarks: null,
       handNotDetectedCount: 0,
@@ -488,12 +488,10 @@
 
     // Використовуємо існуючі аудіофайли
     const audio = {
-      bgMusic: new Audio('audio/bg-music.mp3'),
-      click: new Audio('audio/click.mp3')
+      bgMusic: new Audio('audio/bg-music.mp3')
     };
     audio.bgMusic.loop = true;
     audio.bgMusic.volume = 0.4;
-    audio.click.volume = 0.5;
 
     // Зменшуємо кількість дизайнів до 3
     const DESIGNS = ["1", "2", "3"];
@@ -680,14 +678,9 @@
         document.addEventListener('touchstart', unlock, { once: true });
       }
 
-      setupAudio() {}
-
-      playSound(sound) {
-        if (state.isMuted || !state.isAudioUnlocked) return;
-        try {
-          sound.currentTime = 0;
-          sound.play().catch(() => {});
-        } catch (e) {}
+      setupAudio() {
+        // Музика вимкнена за замовчуванням
+        audio.bgMusic.pause();
       }
 
       toggleSound() {
@@ -698,7 +691,6 @@
           audio.bgMusic.play().catch(() => {});
         }
         this.updateSoundButton();
-        this.playSound(audio.click);
       }
 
       setupEventListeners() {
@@ -785,9 +777,17 @@
         const loadImage = (name) => new Promise((resolve) => {
           const img = new Image();
           img.crossOrigin = "anonymous";
+          // Використовуємо base64 для уникнення CORS проблем
+          const imageUrls = {
+            "1": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==",
+            "2": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==",
+            "3": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAVKwRDwAAAABJRU5ErkJggg=="
+          };
+          
+          // Якщо файл існує локально, спробуємо завантажити його
           img.src = `nails/halloween/${name}.png`;
+          
           img.onload = () => {
-            // ВИПРАВЛЕННЯ: Повертаємо CanvasTexture як у робочій версії
             const texture = new THREE.CanvasTexture(img);
             texture.minFilter = THREE.LinearFilter;
             texture.magFilter = THREE.LinearFilter;
@@ -796,17 +796,28 @@
             resolve();
           };
           img.onerror = () => {
-            console.warn(`Failed to load design: ${name}.png`);
+            console.warn(`Failed to load design: ${name}.png, using placeholder`);
+            // Створюємо простий плейсхолдер
             const canvas = document.createElement('canvas');
             canvas.width = 100; canvas.height = 170;
             const ctx = canvas.getContext('2d');
-            ctx.fillStyle = '#00c6ff'; ctx.fillRect(0, 0, 100, 170);
-            ctx.fillStyle = 'white'; ctx.font = '16px Arial'; ctx.textAlign = 'center';
-            ctx.fillText(name, 50, 90);
-            nailTextures[name] = new THREE.CanvasTexture(canvas);
+            
+            // Різні кольори для різних дизайнів
+            const colors = ['#00c6ff', '#ff6b6b', '#ffd700'];
+            ctx.fillStyle = colors[parseInt(name) - 1] || '#00c6ff';
+            ctx.fillRect(0, 0, 100, 170);
+            
+            ctx.fillStyle = 'white';
+            ctx.font = '16px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText(`Design ${name}`, 50, 90);
+            
+            const texture = new THREE.CanvasTexture(canvas);
+            nailTextures[name] = texture;
             resolve();
           };
         });
+        
         await Promise.all(DESIGNS.map(loadImage));
       }
 
@@ -816,10 +827,25 @@
         // Додаємо стандартні дизайни
         DESIGNS.forEach(name => {
           const btn = document.createElement('img');
+          // Використовуємо ту саму логіку для UI
           btn.src = `nails/halloween/${name}.png`;
+          btn.onerror = () => {
+            // Створюємо простий плейсхолдер для UI
+            const canvas = document.createElement('canvas');
+            canvas.width = 60; canvas.height = 90;
+            const ctx = canvas.getContext('2d');
+            const colors = ['#00c6ff', '#ff6b6b', '#ffd700'];
+            ctx.fillStyle = colors[parseInt(name) - 1] || '#00c6ff';
+            ctx.fillRect(0, 0, 60, 90);
+            ctx.fillStyle = 'white';
+            ctx.font = '10px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText(`Design ${name}`, 30, 45);
+            btn.src = canvas.toDataURL();
+          };
           btn.className = `design-btn ${name === state.currentDesign ? 'selected' : ''}`;
           btn.alt = `Design ${name}`;
-          btn.dataset.id = name; // ВИПРАВЛЕННЯ: Додаємо dataset.id
+          btn.dataset.id = name;
           btn.loading = 'lazy';
           btn.addEventListener('click', () => { this.selectDesign(name); });
           elements.designPicker.appendChild(btn);
@@ -831,7 +857,7 @@
           btn.src = design.url;
           btn.className = `design-btn ${design.id === state.currentDesign ? 'selected' : ''}`;
           btn.alt = `Custom Design`;
-          btn.dataset.id = design.id; // ВИПРАВЛЕННЯ: Додаємо dataset.id
+          btn.dataset.id = design.id;
           btn.loading = 'lazy';
           btn.addEventListener('click', () => { this.selectDesign(design.id); });
           elements.designPicker.appendChild(btn);
@@ -1022,7 +1048,6 @@
         const x = (event.clientX || event.touches[0].clientX) - rect.left;
         const y = (event.clientY || event.touches[0].clientY) - rect.top;
         state.selectedFingerIndex = this.getClosestFinger(x, y);
-        this.playSound(audio.click);
       }
 
       getClosestFinger(touchX, touchY) {
@@ -1045,7 +1070,6 @@
         state.currentLang = state.currentLang === 'en' ? 'uk' : 'en';
         this.updateUI();
         elements.langBtn.textContent = state.currentLang === 'en' ? 'UK' : 'EN';
-        this.playSound(audio.click);
       }
 
       setApplyAllMode() {
@@ -1053,23 +1077,19 @@
         state.selectedFingerIndex = -1;
         elements.applyAllBtn.classList.add('active');
         elements.selectFingerBtn.classList.remove('active');
-        this.playSound(audio.click);
       }
 
       setSelectFingerMode() {
         state.isApplyAll = false;
         elements.applyAllBtn.classList.remove('active');
         elements.selectFingerBtn.classList.add('active');
-        this.playSound(audio.click);
       }
 
       selectDesign(designId) {
         state.currentDesign = designId;
-        // ВИПРАВЛЕННЯ: Використовуємо dataset.id замість src.includes
         document.querySelectorAll('.design-btn').forEach(btn => {
           btn.classList.toggle('selected', btn.dataset.id === designId);
         });
-        this.playSound(audio.click);
         this.triggerConfetti();
       }
 
@@ -1078,7 +1098,6 @@
         document.querySelectorAll('.mask-btn').forEach((btn, i) => {
           btn.classList.toggle('selected', i === index);
         });
-        this.playSound(audio.click);
       }
 
       uploadDesign() {
@@ -1093,7 +1112,6 @@
         reader.onload = (e) => {
           const img = new Image();
           img.onload = () => {
-            // ВИПРАВЛЕННЯ: Повертаємо CanvasTexture як у робочій версії
             const texture = new THREE.CanvasTexture(img);
             texture.minFilter = THREE.LinearFilter;
             texture.magFilter = THREE.LinearFilter;
@@ -1109,8 +1127,6 @@
             
             this.buildDesignUI();
             this.selectDesign(designId);
-            
-            this.playSound(audio.click);
           };
           img.src = e.target.result;
         };
@@ -1142,7 +1158,7 @@
       }
 
       updateSoundButton() {
-        elements.soundBtn.textContent = state.isMuted ? 'Muted' : 'Sound';
+        elements.soundBtn.textContent = state.isMuted ? '🔇' : '🔊';
       }
 
       showCameraIndicator() {
