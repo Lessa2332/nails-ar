@@ -18,7 +18,7 @@
       font-family: 'Arial', 'Segoe UI', system-ui, sans-serif;
       color: white;
     }
-    #video, #canvas, #confettiCanvas, #photoCanvas {
+    #video, #canvas, #confettiCanvas {
       position: absolute;
       top: 0;
       left: 0;
@@ -29,7 +29,6 @@
     #video { z-index: 1; display: none; }
     #canvas { z-index: 2; display: none; }
     #confettiCanvas { z-index: 60; pointer-events: none; }
-    #photoCanvas { z-index: 3; display: none; }
 
     .control-btn {
       position: fixed;
@@ -327,13 +326,12 @@
   <video id="video" playsinline muted></video>
   <canvas id="canvas"></canvas>
   <canvas id="confettiCanvas"></canvas>
-  <canvas id="photoCanvas"></canvas>
 
-  <input type="file" id="photoUpload" accept="image/*" capture="environment" style="display: none;">
+  <input type="file" id="designUpload" accept="image/*" style="display: none;">
 
   <button id="langBtn" class="control-btn" aria-label="Switch language">UK</button>
   <button id="soundBtn" class="control-btn" aria-label="Toggle sound">Sound</button>
-  <button id="uploadBtn" class="control-btn" aria-label="Upload photo">📷</button>
+  <button id="uploadBtn" class="control-btn" aria-label="Upload custom design">📁</button>
 
   <a href="https://smartlessa.etsy.com" target="_blank" id="authorBtn" aria-label="Author: smartlessa.etsy.com">
     Author
@@ -438,16 +436,14 @@
       wristDistance: 0,
       rainbowTime: 0,
       isAudioUnlocked: false,
-      isPhotoMode: false,
-      uploadedPhoto: null
+      customDesigns: [] // Масив для збереження завантажених дизайнів
     };
 
     const elements = {
       video: document.getElementById("video"),
       canvas: document.getElementById("canvas"),
       confettiCanvas: document.getElementById("confettiCanvas"),
-      photoCanvas: document.getElementById("photoCanvas"),
-      photoUpload: document.getElementById("photoUpload"),
+      designUpload: document.getElementById("designUpload"),
       loading: document.getElementById("loading"),
       loadingText: document.getElementById("loadingText"),
       langBtn: document.getElementById("langBtn"),
@@ -463,14 +459,11 @@
     };
 
     const confettiCtx = elements.confettiCanvas.getContext("2d");
-    const photoCtx = elements.photoCanvas.getContext("2d");
     let confetti = [];
 
     function resizeCanvases() {
       elements.confettiCanvas.width = window.innerWidth;
       elements.confettiCanvas.height = window.innerHeight;
-      elements.photoCanvas.width = window.innerWidth;
-      elements.photoCanvas.height = window.innerHeight;
     }
     resizeCanvases();
     window.addEventListener('resize', resizeCanvases);
@@ -712,8 +705,8 @@
       setupEventListeners() {
         elements.langBtn.addEventListener('click', () => this.toggleLanguage());
         elements.soundBtn.addEventListener('click', () => this.toggleSound());
-        elements.uploadBtn.addEventListener('click', () => this.uploadPhoto());
-        elements.photoUpload.addEventListener('change', (e) => this.handlePhotoUpload(e));
+        elements.uploadBtn.addEventListener('click', () => this.uploadDesign());
+        elements.designUpload.addEventListener('change', (e) => this.handleDesignUpload(e));
         elements.applyAllBtn.addEventListener('click', () => this.setApplyAllMode());
         elements.selectFingerBtn.addEventListener('click', () => this.setSelectFingerMode());
         elements.canvas.addEventListener('click', (e) => this.handleCanvasClick(e));
@@ -818,6 +811,8 @@
 
       buildDesignUI() {
         elements.designPicker.innerHTML = '';
+        
+        // Додаємо стандартні дизайни
         DESIGNS.forEach(name => {
           const btn = document.createElement('img');
           // Використовуємо існуючі дизайни з папки halloween
@@ -826,6 +821,17 @@
           btn.alt = `Design ${name}`;
           btn.loading = 'lazy';
           btn.addEventListener('click', () => { this.selectDesign(name); });
+          elements.designPicker.appendChild(btn);
+        });
+
+        // Додаємо завантажені дизайни
+        state.customDesigns.forEach((design, index) => {
+          const btn = document.createElement('img');
+          btn.src = design.url;
+          btn.className = `design-btn ${design.id === state.currentDesign ? 'selected' : ''}`;
+          btn.alt = `Custom Design ${index + 1}`;
+          btn.loading = 'lazy';
+          btn.addEventListener('click', () => { this.selectDesign(design.id); });
           elements.designPicker.appendChild(btn);
         });
       }
@@ -959,8 +965,20 @@
         } else {
           this.updateFingerNailPosition(fingerKey, landmarks);
         }
-        if (nailTextures[state.currentDesign]) {
-          nail.material.uniforms.map.value = nailTextures[state.currentDesign];
+        
+        // Використовуємо текстуру з завантажених дизайнів або стандартних
+        let texture = nailTextures[state.currentDesign];
+        
+        // Шукаємо текстуру серед завантажених дизайнів
+        if (!texture) {
+          const customDesign = state.customDesigns.find(d => d.id === state.currentDesign);
+          if (customDesign) {
+            texture = customDesign.texture;
+          }
+        }
+        
+        if (texture) {
+          nail.material.uniforms.map.value = texture;
           nail.material.needsUpdate = true;
         }
       }
@@ -1056,10 +1074,10 @@
         this.playSound(audio.click);
       }
 
-      selectDesign(name) {
-        state.currentDesign = name;
+      selectDesign(designId) {
+        state.currentDesign = designId;
         document.querySelectorAll('.design-btn').forEach(btn => {
-          btn.classList.toggle('selected', btn.src.includes(`${name}.png`));
+          btn.classList.toggle('selected', btn.src.includes(`${designId}.png`) || btn.alt.includes(`Custom Design ${designId}`));
         });
         this.playSound(audio.click);
         this.triggerConfetti();
@@ -1073,11 +1091,11 @@
         this.playSound(audio.click);
       }
 
-      uploadPhoto() {
-        elements.photoUpload.click();
+      uploadDesign() {
+        elements.designUpload.click();
       }
 
-      handlePhotoUpload(event) {
+      handleDesignUpload(event) {
         const file = event.target.files[0];
         if (!file) return;
         
@@ -1085,32 +1103,36 @@
         reader.onload = (e) => {
           const img = new Image();
           img.onload = () => {
-            state.uploadedPhoto = img;
-            state.isPhotoMode = true;
+            // Створюємо текстуру з завантаженого зображення
+            const texture = new THREE.CanvasTexture(img);
+            texture.minFilter = THREE.LinearFilter;
+            texture.magFilter = THREE.LinearFilter;
+            texture.generateMipmaps = false;
             
-            // Відображаємо фото на canvas
-            photoCtx.clearRect(0, 0, elements.photoCanvas.width, elements.photoCanvas.height);
-            const aspectRatio = img.width / img.height;
-            let drawWidth = elements.photoCanvas.width;
-            let drawHeight = elements.photoCanvas.height;
+            // Генеруємо унікальний ID для дизайну
+            const designId = `custom_${Date.now()}`;
             
-            if (aspectRatio > 1) {
-              drawHeight = drawWidth / aspectRatio;
-            } else {
-              drawWidth = drawHeight * aspectRatio;
-            }
+            // Додаємо дизайн до списку
+            state.customDesigns.push({
+              id: designId,
+              url: e.target.result,
+              texture: texture
+            });
             
-            const x = (elements.photoCanvas.width - drawWidth) / 2;
-            const y = (elements.photoCanvas.height - drawHeight) / 2;
+            // Оновлюємо UI
+            this.buildDesignUI();
             
-            photoCtx.drawImage(img, x, y, drawWidth, drawHeight);
-            elements.photoCanvas.style.display = 'block';
-            elements.video.style.display = 'none';
-            elements.canvas.style.display = 'none';
+            // Автоматично вибираємо завантажений дизайн
+            this.selectDesign(designId);
+            
+            this.playSound(audio.click);
           };
           img.src = e.target.result;
         };
         reader.readAsDataURL(file);
+        
+        // Очищуємо input для можливості завантажити той самий файл знову
+        event.target.value = '';
       }
 
       triggerConfetti() {
