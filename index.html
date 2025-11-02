@@ -198,8 +198,9 @@
       justify-content: center;
       color: white;
       font-weight: bold;
-      font-size: 12px;
+      font-size: 10px;
       text-align: center;
+      line-height: 1.1;
     }
     .mask-btn:hover { 
       transform: scale(1.1); 
@@ -311,7 +312,7 @@
       #modeControls { top: 18px; gap: 8px; padding: 5px 10px; }
       .mode-btn { padding: 7px 14px; font-size: 12px; }
       .design-btn { width: 50px; height: 75px; }
-      .mask-btn { width: 50px; height: 50px; font-size: 10px; }
+      .mask-btn { width: 50px; height: 50px; font-size: 9px; }
       #maskPicker { bottom: 140px; }
     }
   </style>
@@ -498,13 +499,23 @@
 
     // Зменшуємо кількість дизайнів до 3
     const DESIGNS = ["1", "2", "3"];
+    
+    // Розширюємо список масок - додаємо більше форм нігтів
     const MASKS = [
       { id: "none", name: "None" },
       { id: "oval", name: "Oval" },
-      { id: "rounded-square", name: "Rounded Square" },
+      { id: "round", name: "Round" },
+      { id: "square", name: "Square" },
+      { id: "squoval", name: "Squoval" },
+      { id: "almond", name: "Almond" },
+      { id: "stiletto", name: "Stiletto" },
+      { id: "ballerina", name: "Ballerina" },
+      { id: "lipstick", name: "Lipstick" },
+      { id: "edge", name: "Edge" },
       { id: "fleur", name: "Fleur" },
       { id: "gel", name: "Gel Effect" }
     ];
+    
     const nailTextures = {};
 
     let scene, camera, renderer;
@@ -550,13 +561,67 @@
           return step(ellipse, 1.0);
         }
 
-        float roundedSquareMask(vec2 uv) {
+        float roundMask(vec2 uv) {
+          vec2 center = vec2(0.5, 0.5);
+          float dist = distance(uv, center);
+          return step(dist, 0.5);
+        }
+
+        float squareMask(vec2 uv) {
+          vec2 d = abs(uv - vec2(0.5));
+          return step(max(d.x, d.y), 0.5);
+        }
+
+        float squovalMask(vec2 uv) {
           vec2 center = vec2(0.5, 0.5);
           vec2 d = abs(uv - center);
           float radius = 0.1;
           vec2 q = d - vec2(0.5 - radius);
           float dist = length(max(q, 0.0)) + min(max(q.x, q.y), 0.0) - radius;
           return step(dist, 0.0);
+        }
+
+        float almondMask(vec2 uv) {
+          vec2 center = vec2(0.5, 0.5);
+          vec2 d = uv - center;
+          float width = 0.5;
+          float height = 0.7;
+          float curve = 0.3 * sin((uv.y - 0.5) * 3.14159);
+          float almond = (d.x * d.x) / ((width - curve) * (width - curve)) + (d.y * d.y) / (height * height);
+          return step(almond, 1.0);
+        }
+
+        float stilettoMask(vec2 uv) {
+          vec2 center = vec2(0.5, 0.5);
+          vec2 d = uv - center;
+          float tip = 0.8 - uv.y * 0.6;
+          float stiletto = (d.x * d.x) / (tip * tip) + (d.y * d.y) / (0.3 * 0.3);
+          return step(stiletto, 1.0);
+        }
+
+        float ballerinaMask(vec2 uv) {
+          vec2 center = vec2(0.5, 0.5);
+          vec2 d = abs(uv - center);
+          float top = 0.5 - uv.y * 0.3;
+          float sides = 0.4 - (uv.y - 0.5) * 0.5;
+          float coffin = step(d.x, mix(top, sides, uv.y));
+          return coffin;
+        }
+
+        float lipstickMask(vec2 uv) {
+          vec2 center = vec2(0.5, 0.5);
+          vec2 d = uv - center;
+          float tip = 0.6 - uv.y * 0.4;
+          float flatTop = step(uv.y, 0.3) ? 0.5 : tip;
+          float lipstick = (d.x * d.x) / (flatTop * flatTop) + (d.y * d.y) / (0.4 * 0.4);
+          return step(lipstick, 1.0);
+        }
+
+        float edgeMask(vec2 uv) {
+          vec2 center = vec2(0.5, 0.5);
+          vec2 d = abs(uv - center);
+          float edge = step(d.x, 0.5 - (uv.y - 0.5) * 0.3);
+          return edge;
         }
 
         float fleurMask(vec2 uv) {
@@ -586,15 +651,29 @@
           if (maskType == 1) {
             mask = ovalMask(vUv);
           } else if (maskType == 2) {
-            mask = roundedSquareMask(vUv);
+            mask = roundMask(vUv);
           } else if (maskType == 3) {
+            mask = squareMask(vUv);
+          } else if (maskType == 4) {
+            mask = squovalMask(vUv);
+          } else if (maskType == 5) {
+            mask = almondMask(vUv);
+          } else if (maskType == 6) {
+            mask = stilettoMask(vUv);
+          } else if (maskType == 7) {
+            mask = ballerinaMask(vUv);
+          } else if (maskType == 8) {
+            mask = lipstickMask(vUv);
+          } else if (maskType == 9) {
+            mask = edgeMask(vUv);
+          } else if (maskType == 10) {
             mask = fleurMask(vUv);
           }
           
           if (mask < 0.5) discard;
 
           // Ефект гель-лаку
-          if (maskType == 4) {
+          if (maskType == 11) {
             float gel = gelEffect(vUv);
             color *= gel;
           }
