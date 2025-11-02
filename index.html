@@ -426,7 +426,7 @@
       currentMask: "none",
       isApplyAll: true,
       selectedFingerIndex: -1,
-      isMuted: true, // Початково вимкнено звук
+      isMuted: true,
       lastLandmarks: null,
       smoothedLandmarks: null,
       handNotDetectedCount: 0,
@@ -486,14 +486,12 @@
       }
     }
 
-    // Використовуємо існуючі аудіофайли
     const audio = {
       bgMusic: new Audio('audio/bg-music.mp3')
     };
     audio.bgMusic.loop = true;
     audio.bgMusic.volume = 0.4;
 
-    // Зменшуємо кількість дизайнів до 3
     const DESIGNS = ["1", "2", "3"];
     const MASKS = [
       { id: "none", name: "None" },
@@ -538,7 +536,6 @@
           );
         }
 
-        // Функції для масок
         float ovalMask(vec2 uv) {
           vec2 center = vec2(0.5, 0.5);
           vec2 d = uv - center;
@@ -578,7 +575,6 @@
 
           vec3 color = texColor.rgb;
 
-          // Застосовуємо маску
           float mask = 1.0;
           if (maskType == 1) {
             mask = ovalMask(vUv);
@@ -590,7 +586,6 @@
           
           if (mask < 0.5) discard;
 
-          // Ефект гель-лаку
           if (maskType == 4) {
             float gel = gelEffect(vUv);
             color *= gel;
@@ -679,7 +674,6 @@
       }
 
       setupAudio() {
-        // Музика вимкнена за замовчуванням
         audio.bgMusic.pause();
       }
 
@@ -777,15 +771,9 @@
         const loadImage = (name) => new Promise((resolve) => {
           const img = new Image();
           img.crossOrigin = "anonymous";
-          // Використовуємо base64 для уникнення CORS проблем
-          const imageUrls = {
-            "1": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==",
-            "2": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==",
-            "3": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAVKwRDwAAAABJRU5ErkJggg=="
-          };
           
-          // Якщо файл існує локально, спробуємо завантажити його
-          img.src = `nails/halloween/${name}.png`;
+          // ВИПРАВЛЕННЯ: Використовуємо правильний шлях до PNG файлів
+          img.src = `nails/${name}.png`;
           
           img.onload = () => {
             const texture = new THREE.CanvasTexture(img);
@@ -797,12 +785,10 @@
           };
           img.onerror = () => {
             console.warn(`Failed to load design: ${name}.png, using placeholder`);
-            // Створюємо простий плейсхолдер
             const canvas = document.createElement('canvas');
             canvas.width = 100; canvas.height = 170;
             const ctx = canvas.getContext('2d');
             
-            // Різні кольори для різних дизайнів
             const colors = ['#00c6ff', '#ff6b6b', '#ffd700'];
             ctx.fillStyle = colors[parseInt(name) - 1] || '#00c6ff';
             ctx.fillRect(0, 0, 100, 170);
@@ -824,13 +810,11 @@
       buildDesignUI() {
         elements.designPicker.innerHTML = '';
         
-        // Додаємо стандартні дизайни
         DESIGNS.forEach(name => {
           const btn = document.createElement('img');
-          // Використовуємо ту саму логіку для UI
-          btn.src = `nails/halloween/${name}.png`;
+          // ВИПРАВЛЕННЯ: Правильний шлях для UI
+          btn.src = `nails/${name}.png`;
           btn.onerror = () => {
-            // Створюємо простий плейсхолдер для UI
             const canvas = document.createElement('canvas');
             canvas.width = 60; canvas.height = 90;
             const ctx = canvas.getContext('2d');
@@ -851,7 +835,6 @@
           elements.designPicker.appendChild(btn);
         });
 
-        // Додаємо завантажені дизайни
         state.customDesigns.forEach((design) => {
           const btn = document.createElement('img');
           btn.src = design.url;
