@@ -437,7 +437,7 @@
       wristDistance: 0,
       rainbowTime: 0,
       isAudioUnlocked: false,
-      customDesigns: [] // Масив для збереження завантажених дизайнів
+      customDesigns: []
     };
 
     const elements = {
@@ -469,7 +469,6 @@
     resizeCanvases();
     window.addEventListener('resize', resizeCanvases);
 
-    // Create snowflakes
     function createSnowflakes() {
       const snowflakesContainer = document.createElement('div');
       snowflakesContainer.id = 'snowflakes';
@@ -488,7 +487,6 @@
       }
     }
 
-    // Використовуємо існуючі аудіофайли
     const audio = {
       bgMusic: new Audio('audio/bg-music.mp3'),
       click: new Audio('audio/click.mp3')
@@ -497,10 +495,8 @@
     audio.bgMusic.volume = 0.4;
     audio.click.volume = 0.5;
 
-    // Зменшуємо кількість дизайнів до 3
     const DESIGNS = ["1", "2", "3"];
     
-    // Розширюємо список масок - додаємо більше форм нігтів
     const MASKS = [
       { id: "none", name: "None" },
       { id: "oval", name: "Oval" },
@@ -552,7 +548,6 @@
           );
         }
 
-        // Функції для масок
         float ovalMask(vec2 uv) {
           vec2 center = vec2(0.5, 0.5);
           vec2 d = uv - center;
@@ -646,7 +641,6 @@
 
           vec3 color = texColor.rgb;
 
-          // Застосовуємо маску
           float mask = 1.0;
           if (maskType == 1) {
             mask = ovalMask(vUv);
@@ -672,7 +666,6 @@
           
           if (mask < 0.5) discard;
 
-          // Ефект гель-лаку
           if (maskType == 11) {
             float gel = gelEffect(vUv);
             color *= gel;
@@ -700,7 +693,7 @@
         this.vx = (Math.random() - 0.5) * 8;
         this.vy = Math.random() * -15 - 5;
         this.size = Math.random() * 6 + 4;
-        this.color = `hsl(${Math.random() * 60 + 180}, 100%, 70%)`; // Blue/cyan tones
+        this.color = `hsl(${Math.random() * 60 + 180}, 100%, 70%)`;
         this.life = 1.0;
         this.gravity = 0.4;
         this.rotation = Math.random() * Math.PI * 2;
@@ -864,7 +857,6 @@
       async loadDesigns() {
         const loadImage = (name) => new Promise((resolve) => {
           const img = new Image();
-          // Використовуємо існуючі дизайни з папки halloween
           img.src = `nails/halloween/${name}.png`;
           img.onload = () => {
             const texture = new THREE.CanvasTexture(img);
@@ -891,10 +883,8 @@
       buildDesignUI() {
         elements.designPicker.innerHTML = '';
         
-        // Додаємо стандартні дизайни
         DESIGNS.forEach(name => {
           const btn = document.createElement('img');
-          // Використовуємо існуючі дизайни з папки halloween
           btn.src = `nails/halloween/${name}.png`;
           btn.className = `design-btn ${name === state.currentDesign ? 'selected' : ''}`;
           btn.alt = `Design ${name}`;
@@ -903,7 +893,6 @@
           elements.designPicker.appendChild(btn);
         });
 
-        // Додаємо завантажені дизайни
         state.customDesigns.forEach((design, index) => {
           const btn = document.createElement('img');
           btn.src = design.url;
@@ -938,7 +927,6 @@
             const mat = nails[key].material;
             if (mat && mat.uniforms) {
               mat.uniforms.time.value = time;
-              // Встановлюємо тип маски
               mat.uniforms.maskType.value = MASKS.findIndex(m => m.id === state.currentMask);
             }
           });
@@ -1045,10 +1033,8 @@
           this.updateFingerNailPosition(fingerKey, landmarks);
         }
         
-        // Використовуємо текстуру з завантажених дизайнів або стандартних
         let texture = nailTextures[state.currentDesign];
         
-        // Шукаємо текстуру серед завантажених дизайнів
         if (!texture) {
           const customDesign = state.customDesigns.find(d => d.id === state.currentDesign);
           if (customDesign) {
@@ -1182,26 +1168,20 @@
         reader.onload = (e) => {
           const img = new Image();
           img.onload = () => {
-            // Створюємо текстуру з завантаженого зображення
             const texture = new THREE.CanvasTexture(img);
             texture.minFilter = THREE.LinearFilter;
             texture.magFilter = THREE.LinearFilter;
             texture.generateMipmaps = false;
             
-            // Генеруємо унікальний ID для дизайну
             const designId = `custom_${Date.now()}`;
             
-            // Додаємо дизайн до списку
             state.customDesigns.push({
               id: designId,
               url: e.target.result,
               texture: texture
             });
             
-            // Оновлюємо UI
             this.buildDesignUI();
-            
-            // Автоматично вибираємо завантажений дизайн
             this.selectDesign(designId);
             
             this.playSound(audio.click);
@@ -1210,7 +1190,6 @@
         };
         reader.readAsDataURL(file);
         
-        // Очищуємо input для можливості завантажити той самий файл знову
         event.target.value = '';
       }
 
