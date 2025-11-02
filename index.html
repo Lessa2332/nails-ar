@@ -411,7 +411,7 @@
       currentMask: "none",
       isApplyAll: true,
       selectedFingerIndex: -1,
-      isMuted: true, // Початково вимкнений звук
+      isMuted: true,
       lastLandmarks: null,
       smoothedLandmarks: null,
       handNotDetectedCount: 0,
@@ -452,8 +452,6 @@
     resizeCanvases();
     window.addEventListener('resize', resizeCanvases);
 
-    // Видалено сніжинки (не відповідають темі)
-
     // Видалено аудіо - використовуємо тільки візуальні ефекти
     const audio = {
       click: new Audio("data:audio/wav;base64,UklGRigAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQQAAAAAAA==")
@@ -478,13 +476,13 @@
     
     const nailTextures = {};
 
+    // ГЛОБАЛЬНІ ЗМІННІ - як у старому робочому коді
+    let scene, camera, renderer;
+    const nails = {};
+    let handLandmarker;
+
     class NailARApplication {
       constructor() { 
-        this.scene = null;
-        this.camera = null;
-        this.renderer = null;
-        this.nails = {};
-        this.handLandmarker = null;
         this.init(); 
       }
 
@@ -560,21 +558,21 @@
       }
 
       async initWebGL() {
-        this.scene = new THREE.Scene();
-        this.camera = new THREE.OrthographicCamera(
+        scene = new THREE.Scene();
+        camera = new THREE.OrthographicCamera(
           -window.innerWidth / 2, window.innerWidth / 2, 
           window.innerHeight / 2, -window.innerHeight / 2, 
           0.1, 1000
         );
-        this.camera.position.z = 10;
-        this.renderer = new THREE.WebGLRenderer({ 
+        camera.position.z = 10;
+        renderer = new THREE.WebGLRenderer({ 
           canvas: elements.canvas, 
           alpha: true, 
           antialias: true, 
           powerPreference: "high-performance" 
         });
-        this.renderer.setSize(window.innerWidth, window.innerHeight);
-        this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
         this.createNails();
       }
 
@@ -769,21 +767,21 @@
           nail.visible = false;
           nail.frustumCulled = false;
           nail.userData.fingerType = key;
-          this.nails[key] = nail;
-          this.scene.add(nail);
+          nails[key] = nail;
+          scene.add(nail);
         });
       }
 
       async setupHandTracking() {
         try {
           const vision = await FilesetResolver.forVisionTasks("https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.3/wasm");
-          this.handLandmarker = await HandLandmarker.createFromOptions(vision, {
+          handLandmarker = await HandLandmarker.createFromOptions(vision, {
             baseOptions: { 
               modelAssetPath: "https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/1/hand_landmarker.task", 
               delegate: "GPU" 
             },
             runningMode: "VIDEO",
-            numHands: 2 // Додано підтримку двох рук
+            numHands: 2
           });
         } catch (error) {
           console.error('Hand tracking setup failed:', error);
@@ -808,7 +806,7 @@
             texture.minFilter = THREE.LinearFilter;
             texture.magFilter = THREE.LinearFilter;
             texture.generateMipmaps = false;
-            texture.needsUpdate = true; // Додаємо оновлення текстури
+            texture.needsUpdate = true;
             nailTextures[name] = texture;
             resolve();
           };
@@ -837,7 +835,7 @@
           btn.src = `nails/halloween/${name}.png`;
           btn.className = `design-btn ${name === state.currentDesign ? 'selected' : ''}`;
           btn.alt = `Design ${name}`;
-          btn.dataset.id = name; // ВИПРАВЛЕННЯ: Додаємо dataset.id
+          btn.dataset.id = name;
           btn.loading = 'lazy';
           btn.addEventListener('click', () => { this.selectDesign(name); });
           elements.designPicker.appendChild(btn);
@@ -849,7 +847,7 @@
           btn.src = design.url;
           btn.className = `design-btn ${design.id === state.currentDesign ? 'selected' : ''}`;
           btn.alt = `Custom Design`;
-          btn.dataset.id = design.id; // ВИПРАВЛЕННЯ: Додаємо dataset.id
+          btn.dataset.id = design.id;
           btn.loading = 'lazy';
           btn.addEventListener('click', () => { this.selectDesign(design.id); });
           elements.designPicker.appendChild(btn);
@@ -870,15 +868,13 @@
       startRenderLoop() {
         const render = () => {
           this.detectHands();
-          if (state.lastLandmarks) {
-            this.renderAR();
-          }
+          this.renderAR(); // ВИПРАВЛЕННЯ: завжди рендеримо
           this.updateConfetti();
           this.updateHolidayShine();
 
           const time = performance.now() * 0.001;
           FINGER_KEYS.forEach(key => {
-            const mat = this.nails[key].material;
+            const mat = nails[key].material;
             if (mat && mat.uniforms) {
               mat.uniforms.time.value = time;
               mat.uniforms.maskType.value = MASKS.findIndex(m => m.id === state.currentMask);
@@ -900,7 +896,7 @@
       updateHolidayShine() {
         state.rainbowTime += 0.02;
         FINGER_KEYS.forEach(key => {
-          const mat = this.nails[key].material;
+          const mat = nails[key].material;
           if (mat && mat.uniforms) {
             mat.uniforms.shineIntensity.value = 0.8 + 0.2 * Math.sin(state.rainbowTime);
           }
@@ -908,9 +904,9 @@
       }
 
       detectHands() {
-        if (!this.handLandmarker || elements.video.readyState < 2) return;
+        if (!handLandmarker || elements.video.readyState < 2) return;
         try {
-          const predictions = this.handLandmarker.detectForVideo(elements.video, performance.now());
+          const predictions = handLandmarker.detectForVideo(elements.video, performance.now());
           if (predictions.landmarks?.length > 0) {
             state.handNotDetectedCount = 0;
             this.hideHandIndicator();
@@ -956,8 +952,9 @@
       lerp(start, end, factor) { return start * (1 - factor) + end * factor; }
 
       renderAR() {
+        if (!state.lastLandmarks) return;
         FINGER_KEYS.forEach((key, index) => {
-          const nail = this.nails[key];
+          const nail = nails[key];
           if (!state.isApplyAll && index !== state.selectedFingerIndex) {
             nail.visible = false;
             return;
@@ -965,12 +962,12 @@
           this.updateNailPosition(key);
           nail.visible = true;
         });
-        this.renderer.render(this.scene, this.camera);
+        renderer.render(scene, camera);
       }
 
       updateNailPosition(fingerKey) {
         const landmarks = state.lastLandmarks;
-        const nail = this.nails[fingerKey];
+        const nail = nails[fingerKey];
         if (fingerKey === 'thumb') {
           this.updateThumbNailPosition(fingerKey, landmarks);
         } else {
@@ -993,7 +990,7 @@
       }
 
       updateThumbNailPosition(fingerKey, landmarks) {
-        const nail = this.nails[fingerKey];
+        const nail = nails[fingerKey];
         const { tip, mcp, ip } = FINGER_INDICES[fingerKey];
         const tipLandmark = landmarks[tip];
         const mcpLandmark = landmarks[mcp];
@@ -1013,7 +1010,7 @@
       }
 
       updateFingerNailPosition(fingerKey, landmarks) {
-        const nail = this.nails[fingerKey];
+        const nail = nails[fingerKey];
         const { tip, pip } = FINGER_INDICES[fingerKey];
         const tipLandmark = landmarks[tip];
         const pipLandmark = landmarks[pip];
@@ -1031,8 +1028,8 @@
       }
 
       hideAllNails() {
-        FINGER_KEYS.forEach(key => this.nails[key].visible = false);
-        this.renderer.render(this.scene, this.camera);
+        FINGER_KEYS.forEach(key => nails[key].visible = false);
+        renderer.render(scene, camera);
       }
 
       handleCanvasClick(event) {
@@ -1181,13 +1178,13 @@
       }
 
       handleResize() {
-        if (!this.camera || !this.renderer) return;
-        this.camera.left = -window.innerWidth / 2;
-        this.camera.right = window.innerWidth / 2;
-        this.camera.top = window.innerHeight / 2;
-        this.camera.bottom = -window.innerHeight / 2;
-        this.camera.updateProjectionMatrix();
-        this.renderer.setSize(window.innerWidth, window.innerHeight);
+        if (!camera || !renderer) return;
+        camera.left = -window.innerWidth / 2;
+        camera.right = window.innerWidth / 2;
+        camera.top = window.innerHeight / 2;
+        camera.bottom = -window.innerHeight / 2;
+        camera.updateProjectionMatrix();
+        renderer.setSize(window.innerWidth, window.innerHeight);
       }
 
       handleError(error) {
@@ -1206,7 +1203,7 @@
       cleanup() {
         if (state.animationFrameId) cancelAnimationFrame(state.animationFrameId);
         if (elements.video.srcObject) elements.video.srcObject.getTracks().forEach(track => track.stop());
-        if (this.handLandmarker) this.handLandmarker.close();
+        if (handLandmarker) handLandmarker.close();
       }
     }
 
