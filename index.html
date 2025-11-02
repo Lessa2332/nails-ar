@@ -772,8 +772,8 @@
           const img = new Image();
           img.crossOrigin = "anonymous";
           
-          // ВИПРАВЛЕННЯ: Використовуємо правильний шлях до PNG файлів
-          img.src = `nails/${name}.png`;
+          // ВИПРАВЛЕННЯ: Правильний шлях до PNG файлів в піддиректорії halloween
+          img.src = `nails/halloween/${name}.png`;
           
           img.onload = () => {
             const texture = new THREE.CanvasTexture(img);
@@ -781,10 +781,11 @@
             texture.magFilter = THREE.LinearFilter;
             texture.generateMipmaps = false;
             nailTextures[name] = texture;
+            console.log(`Successfully loaded design: ${name}.png`);
             resolve();
           };
           img.onerror = () => {
-            console.warn(`Failed to load design: ${name}.png, using placeholder`);
+            console.warn(`Failed to load design: nails/halloween/${name}.png, using placeholder`);
             const canvas = document.createElement('canvas');
             canvas.width = 100; canvas.height = 170;
             const ctx = canvas.getContext('2d');
@@ -813,8 +814,9 @@
         DESIGNS.forEach(name => {
           const btn = document.createElement('img');
           // ВИПРАВЛЕННЯ: Правильний шлях для UI
-          btn.src = `nails/${name}.png`;
+          btn.src = `nails/halloween/${name}.png`;
           btn.onerror = () => {
+            console.warn(`Failed to load UI image: nails/halloween/${name}.png, using placeholder`);
             const canvas = document.createElement('canvas');
             canvas.width = 60; canvas.height = 90;
             const ctx = canvas.getContext('2d');
