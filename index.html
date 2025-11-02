@@ -772,22 +772,36 @@
           const img = new Image();
           img.crossOrigin = "anonymous";
           
-          // ВИПРАВЛЕННЯ: Правильний шлях до PNG файлів в піддиректорії halloween
-          img.src = `nails/halloween/${name}.png`;
+          // ВИПРАВЛЕННЯ: Детальна перевірка завантаження
+          const imagePath = `nails/halloween/${name}.png`;
+          console.log(`🔄 Loading design: ${imagePath}`);
+          
+          img.src = imagePath;
           
           img.onload = () => {
+            console.log(`✅ Successfully loaded: ${imagePath}`);
+            
+            // Створюємо текстуру з правильними налаштуваннями
             const texture = new THREE.CanvasTexture(img);
+            texture.wrapS = THREE.ClampToEdgeWrapping;
+            texture.wrapT = THREE.ClampToEdgeWrapping;
             texture.minFilter = THREE.LinearFilter;
             texture.magFilter = THREE.LinearFilter;
+            texture.format = THREE.RGBAFormat;
             texture.generateMipmaps = false;
+            
             nailTextures[name] = texture;
-            console.log(`Successfully loaded design: ${name}.png`);
+            console.log(`✅ Texture created for: ${name}`);
             resolve();
           };
-          img.onerror = () => {
-            console.warn(`Failed to load design: nails/halloween/${name}.png, using placeholder`);
+          
+          img.onerror = (e) => {
+            console.error(`❌ FAILED to load: ${imagePath}`, e);
+            
+            // Створюємо placeholder
             const canvas = document.createElement('canvas');
-            canvas.width = 100; canvas.height = 170;
+            canvas.width = 100; 
+            canvas.height = 170;
             const ctx = canvas.getContext('2d');
             
             const colors = ['#00c6ff', '#ff6b6b', '#ffd700'];
@@ -801,11 +815,28 @@
             
             const texture = new THREE.CanvasTexture(canvas);
             nailTextures[name] = texture;
+            console.log(`🔄 Using placeholder for: ${name}`);
             resolve();
           };
         });
         
         await Promise.all(DESIGNS.map(loadImage));
+        
+        // Оновлюємо матеріали після завантаження всіх текстур
+        this.updateNailMaterials();
+        console.log('✅ All nail materials updated');
+      }
+
+      // НОВА ФУНКЦІЯ: Оновлення матеріалів нігтів
+      updateNailMaterials() {
+        FINGER_KEYS.forEach(key => {
+          const nail = nails[key];
+          if (nail && nail.material && nailTextures[state.currentDesign]) {
+            nail.material.uniforms.map.value = nailTextures[state.currentDesign];
+            nail.material.needsUpdate = true;
+            console.log(`✅ Updated material for ${key} with design ${state.currentDesign}`);
+          }
+        });
       }
 
       buildDesignUI() {
@@ -813,12 +844,15 @@
         
         DESIGNS.forEach(name => {
           const btn = document.createElement('img');
-          // ВИПРАВЛЕННЯ: Правильний шлях для UI
-          btn.src = `nails/halloween/${name}.png`;
-          btn.onerror = () => {
-            console.warn(`Failed to load UI image: nails/halloween/${name}.png, using placeholder`);
+          const imagePath = `nails/halloween/${name}.png`;
+          console.log(`🔄 Creating UI button for: ${imagePath}`);
+          
+          btn.src = imagePath;
+          btn.onerror = (e) => {
+            console.error(`❌ UI image failed: ${imagePath}`, e);
             const canvas = document.createElement('canvas');
-            canvas.width = 60; canvas.height = 90;
+            canvas.width = 60; 
+            canvas.height = 90;
             const ctx = canvas.getContext('2d');
             const colors = ['#00c6ff', '#ff6b6b', '#ffd700'];
             ctx.fillStyle = colors[parseInt(name) - 1] || '#00c6ff';
@@ -829,6 +863,7 @@
             ctx.fillText(`Design ${name}`, 30, 45);
             btn.src = canvas.toDataURL();
           };
+          
           btn.className = `design-btn ${name === state.currentDesign ? 'selected' : ''}`;
           btn.alt = `Design ${name}`;
           btn.dataset.id = name;
@@ -1072,6 +1107,10 @@
 
       selectDesign(designId) {
         state.currentDesign = designId;
+        
+        // Оновлюємо матеріали при зміні дизайну
+        this.updateNailMaterials();
+        
         document.querySelectorAll('.design-btn').forEach(btn => {
           btn.classList.toggle('selected', btn.dataset.id === designId);
         });
