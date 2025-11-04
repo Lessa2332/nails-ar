@@ -289,7 +289,6 @@
     <span>Hand</span>
     <span>Show your hand</span>
   </div>
-
   <script type="importmap">
     {
       "imports": {
@@ -298,11 +297,9 @@
       }
     }
   </script>
-
   <script type="module">
     import * as THREE from 'three';
     import { FilesetResolver, HandLandmarker } from "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.3";
-
     const CONFIG = {
       SMOOTHING_FACTOR: 0.7,
       HAND_NOT_DETECTED_THRESHOLD: 10,
@@ -334,7 +331,6 @@
       MAX_SCALE_FACTOR: 1.6,
       MIN_SCALE_FACTOR: 0.5
     };
-
     const FINGER_INDICES = {
       thumb: { tip: 4, mcp: 2, pip: 3, ip: 3 },
       index: { tip: 8, mcp: 5, pip: 6, dip: 7 },
@@ -342,9 +338,7 @@
       ring: { tip: 16, mcp: 13, pip: 14, dip: 15 },
       pinky: { tip: 20, mcp: 17, pip: 18, dip: 19 }
     };
-
     const FINGER_KEYS = Object.keys(FINGER_INDICES);
-
     const translations = {
       en: {
         title: "Christmas Nail AR Try-On",
@@ -371,7 +365,6 @@
         handNotDetected: "Покажи руку"
       }
     };
-
     const state = {
       currentLang: 'en',
       currentDesign: "1",
@@ -391,7 +384,6 @@
       customDesigns: [],
       frameTimestamp: 0
     };
-
     const elements = {
       video: document.getElementById("video"),
       canvas: document.getElementById("canvas"),
@@ -410,25 +402,20 @@
       cameraIndicator: document.getElementById("cameraIndicator"),
       handIndicator: document.getElementById("handIndicator")
     };
-
     const confettiCtx = elements.confettiCanvas.getContext("2d");
     let confetti = [];
-
     function resizeCanvases() {
       elements.confettiCanvas.width = window.innerWidth;
       elements.confettiCanvas.height = window.innerHeight;
     }
     resizeCanvases();
     window.addEventListener('resize', resizeCanvases);
-
     const audio = {
       bgMusic: new Audio('audio/bg-music.mp3')
     };
     audio.bgMusic.loop = true;
     audio.bgMusic.volume = 0.4;
-
     const DESIGNS = ["1", "2", "3"];
-
     const MASKS = [
       { id: "none", name: "None" },
       { id: "square", name: "Square" },
@@ -444,12 +431,10 @@
       { id: "flare", name: "Flare" },
       { id: "arrow_head", name: "Arrow" }
     ];
-
     const nailTextures = {};
     let scene, camera, renderer;
     const nails = {};
     let handLandmarker;
-
     const NAIL_SHADER = {
       vertexShader: `
         varying vec2 vUv;
@@ -478,123 +463,150 @@
             0.5 + 0.5 * sin(t + 4.0)
           );
         }
+        float sdBox(vec2 p, vec2 b) {
+          vec2 d = abs(p) - b;
+          return length(max(d, 0.0)) + min(max(d.x, d.y), 0.0);
+        }
+        float sdRoundedBox(vec2 p, vec2 b, float r) {
+          vec2 d = abs(p) - b + vec2(r);
+          return length(max(d, 0.0)) - r + min(max(d.x, d.y), -r);
+        }
+        float sdEllipse(vec2 p, vec2 r) {
+          vec2 q = abs(p / r) - vec2(1.0);
+          return length(max(q, 0.0)) + min(max(q.x, q.y), 0.0);
+        }
+        float sdCapsule(vec2 p, vec2 a, vec2 b) {
+          vec2 pa = p - a, ba = b - a;
+          float h = clamp(dot(pa, ba) / dot(ba, ba), 0.0, 1.0);
+          return length(pa - ba * h);
+        }
+        float sdAlmond(vec2 p) {
+          float a = 0.45;
+          float b = 0.25;
+          vec2 q = abs(p);
+          q.x = mix(q.x, a * (1.0 - q.y / b), step(q.y, b));
+          return length(q) - a;
+        }
+        float sdStiletto(vec2 p) {
+          float taper = 0.3;
+          vec2 q = abs(p);
+          q.x = mix(q.x, taper * q.y, step(q.y, 0.8));
+          return length(q) - 0.45;
+        }
+        float sdBallerina(vec2 p) {
+          vec2 q = abs(p);
+          q.x = mix(q.x, 0.4 + 0.1 * sin(q.y * 3.14 / 0.9), step(q.y, 0.9));
+          return length(q) - 0.45;
+        }
+        float sdMountainPeak(vec2 p) {
+          vec2 q = p * 1.2;
+          q.x -= 0.1 * sin(q.y * 3.14 / 0.9 + 3.14);
+          return length(q) - 0.42;
+        }
+        float sdEdge(vec2 p) {
+          vec2 q = abs(p);
+          q.x += 0.05 * sin(q.y * 6.28);
+          return length(q) - 0.45;
+        }
+        float sdLipstick(vec2 p) {
+          vec2 q = abs(p);
+          q.x = mix(q.x, 0.35, step(q.y, 0.8));
+          q.x += 0.02 * cos(q.y * 3.14 / 0.8);
+          return length(q) - 0.45;
+        }
+        float sdFlare(vec2 p) {
+          vec2 q = abs(p);
+          q.x += 0.05 * sin(q.y * 4.71);
+          return length(q) - 0.45;
+        }
+        float sdArrowHead(vec2 p) {
+          vec2 q = abs(p);
+          q.x -= 0.1 * sin(q.y * 3.14 / 0.9 + 3.14 * 0.5);
+          return length(q) - 0.42;
+        }
         float ovalMask(vec2 uv) {
           vec2 center = vec2(0.5, 0.5);
-          vec2 d = uv - center;
-          float r = 0.5;
-          float ellipse = (d.x * d.x) / (r * r) + (d.y * d.y) / (r * r * 0.7);
-          return 1.0 - smoothstep(0.99, 1.0, ellipse);
+          vec2 p = uv - center;
+          vec2 r = vec2(0.5 * 1.2, 0.5 * 0.8);
+          float dist = sdEllipse(p, r);
+          return 1.0 - smoothstep(0.0, 0.02, dist);
         }
         float roundedSquareMask(vec2 uv) {
           vec2 center = vec2(0.5, 0.5);
-          vec2 d = abs(uv - center);
-          float radius = 0.08;
-          vec2 q = d - vec2(0.5 - radius);
-          float dist = length(max(q, 0.0)) + min(max(q.x, q.y), 0.0) - radius;
-          return 1.0 - smoothstep(0.0, 0.01, dist);
+          vec2 p = uv - center;
+          vec2 b = vec2(0.48, 0.48);
+          float r = 0.08;
+          float dist = sdRoundedBox(p, b, r);
+          return 1.0 - smoothstep(0.0, 0.02, dist);
         }
         float squareMask(vec2 uv) {
           vec2 center = vec2(0.5, 0.5);
-          vec2 d = abs(uv - center);
-          float size = 0.42;
-          float edge = 0.04;
-          if (d.x > size || d.y > size) return 0.0;
-          if (d.x < size - edge && d.y < size - edge) return 1.0;
-          return 1.0 - smoothstep(size - edge, size, max(d.x, d.y));
+          vec2 p = uv - center;
+          vec2 b = vec2(0.48, 0.48);
+          float dist = sdBox(p, b);
+          return 1.0 - smoothstep(0.0, 0.02, dist);
         }
         float squovalMask(vec2 uv) {
           vec2 center = vec2(0.5, 0.5);
-          vec2 d = uv - center;
-          float dx = d.x * 1.3;
-          float dy = d.y * 0.9;
-          float r = sqrt(dx*dx + dy*dy);
-          return 1.0 - smoothstep(0.42, 0.45, r);
+          vec2 p = uv - center;
+          vec2 b = vec2(0.48 * 1.1, 0.48 * 0.9);
+          float r = 0.06;
+          float dist = sdRoundedBox(p, b, r);
+          return 1.0 - smoothstep(0.0, 0.02, dist);
         }
         float roundedMask(vec2 uv) {
           vec2 center = vec2(0.5, 0.5);
-          vec2 d = uv - center;
-          float r = length(d);
-          return 1.0 - smoothstep(0.42, 0.45, r);
+          vec2 p = uv - center;
+          float dist = length(p);
+          return 1.0 - smoothstep(0.48, 0.50, dist);
         }
         float almondMask(vec2 uv) {
           vec2 center = vec2(0.5, 0.5);
-          vec2 d = uv - center;
-          float dx = d.x * 1.4;
-          float dy = d.y * 1.1;
-          float r = sqrt(dx*dx + dy*dy);
-          float angle = atan(dy, dx);
-          float shape = 0.45 + 0.25 * cos(4.0 * angle);
-          return 1.0 - smoothstep(shape - 0.04, shape, r);
+          vec2 p = uv - center;
+          float dist = sdAlmond(p);
+          return 1.0 - smoothstep(0.0, 0.02, dist);
         }
         float mountainPeakMask(vec2 uv) {
           vec2 center = vec2(0.5, 0.5);
-          vec2 d = uv - center;
-          float dx = d.x * 1.4;
-          float dy = d.y * 1.1;
-          float r = sqrt(dx*dx + dy*dy);
-          float angle = atan(dy, dx);
-          float shape = 0.45 + 0.25 * cos(5.0 * angle + 3.14159);
-          return 1.0 - smoothstep(shape - 0.04, shape, r);
+          vec2 p = uv - center;
+          float dist = sdMountainPeak(p);
+          return 1.0 - smoothstep(0.0, 0.02, dist);
         }
         float stilettoMask(vec2 uv) {
           vec2 center = vec2(0.5, 0.5);
-          vec2 d = uv - center;
-          float dx = d.x * 1.4;
-          float dy = d.y * 1.1;
-          float r = sqrt(dx*dx + dy*dy);
-          float angle = atan(dy, dx);
-          float shape = 0.45 + 0.25 * cos(5.0 * angle);
-          return 1.0 - smoothstep(shape - 0.04, shape, r);
+          vec2 p = uv - center;
+          float dist = sdStiletto(p);
+          return 1.0 - smoothstep(0.0, 0.02, dist);
         }
         float ballerinaMask(vec2 uv) {
           vec2 center = vec2(0.5, 0.5);
-          vec2 d = uv - center;
-          float dx = d.x * 1.2;
-          float dy = d.y * 0.9;
-          float r = sqrt(dx*dx + dy*dy);
-          float angle = atan(dy, dx);
-          float shape = 0.45 + 0.2 * cos(4.0 * angle + 3.14159);
-          return 1.0 - smoothstep(shape - 0.04, shape, r);
+          vec2 p = uv - center;
+          float dist = sdBallerina(p);
+          return 1.0 - smoothstep(0.0, 0.02, dist);
         }
         float edgeMask(vec2 uv) {
           vec2 center = vec2(0.5, 0.5);
-          vec2 d = uv - center;
-          float dx = d.x * 1.4;
-          float dy = d.y * 0.9;
-          float r = sqrt(dx*dx + dy*dy);
-          float angle = atan(dy, dx);
-          float shape = 0.45 + 0.25 * cos(6.0 * angle);
-          return 1.0 - smoothstep(shape - 0.04, shape, r);
+          vec2 p = uv - center;
+          float dist = sdEdge(p);
+          return 1.0 - smoothstep(0.0, 0.02, dist);
         }
         float lipstickMask(vec2 uv) {
           vec2 center = vec2(0.5, 0.5);
-          vec2 d = uv - center;
-          float dx = d.x * 1.1;
-          float dy = d.y * 0.9;
-          float r = sqrt(dx*dx + dy*dy);
-          float angle = atan(dy, dx);
-          float shape = 0.45 + 0.2 * cos(4.0 * angle);
-          return 1.0 - smoothstep(shape - 0.04, shape, r);
+          vec2 p = uv - center;
+          float dist = sdLipstick(p);
+          return 1.0 - smoothstep(0.0, 0.02, dist);
         }
         float flareMask(vec2 uv) {
           vec2 center = vec2(0.5, 0.5);
-          vec2 d = uv - center;
-          float dx = d.x * 1.3;
-          float dy = d.y * 0.9;
-          float r = sqrt(dx*dx + dy*dy);
-          float angle = atan(dy, dx);
-          float shape = 0.45 + 0.25 * cos(5.0 * angle);
-          return 1.0 - smoothstep(shape - 0.04, shape, r);
+          vec2 p = uv - center;
+          float dist = sdFlare(p);
+          return 1.0 - smoothstep(0.0, 0.02, dist);
         }
         float arrowHeadMask(vec2 uv) {
           vec2 center = vec2(0.5, 0.5);
-          vec2 d = uv - center;
-          float dx = d.x * 1.4;
-          float dy = d.y * 1.1;
-          float r = sqrt(dx*dx + dy*dy);
-          float angle = atan(dy, dx);
-          float shape = 0.45 + 0.25 * cos(6.0 * angle + 3.14159);
-          return 1.0 - smoothstep(shape - 0.04, shape, r);
+          vec2 p = uv - center;
+          float dist = sdArrowHead(p);
+          return 1.0 - smoothstep(0.0, 0.02, dist);
         }
         float gelEffect(vec2 uv) {
           vec2 center = vec2(0.5, 0.5);
@@ -647,7 +659,6 @@
         }
       `
     };
-
     class ConfettiParticle {
       constructor(x, y) {
         this.x = x; this.y = y;
@@ -678,7 +689,6 @@
         ctx.restore();
       }
     }
-
     class NailARApplication {
       constructor() { this.init(); }
       async init() {
@@ -697,7 +707,6 @@
           this.handleError(error);
         }
       }
-
       unlockAudio() {
         const unlock = () => {
           if (state.isAudioUnlocked) return;
@@ -711,7 +720,6 @@
         document.addEventListener('click', unlock, { once: true });
         document.addEventListener('touchstart', unlock, { once: true });
       }
-
       setupAudio() {}
       toggleSound() {
         state.isMuted = !state.isMuted;
@@ -722,7 +730,6 @@
         }
         this.updateSoundButton();
       }
-
       setupEventListeners() {
         elements.langBtn.addEventListener('click', () => this.toggleLanguage());
         elements.soundBtn.addEventListener('click', () => this.toggleSound());
@@ -741,7 +748,6 @@
         });
         window.addEventListener('beforeunload', () => this.cleanup());
       }
-
       async setupCamera() {
         try {
           const constraints = { video: { facingMode: "environment", width: { ideal: 1280 }, height: { ideal: 720 }, frameRate: { ideal: 30 } } };
@@ -754,7 +760,6 @@
           throw new Error('CAMERA_ERROR');
         }
       }
-
       async initWebGL() {
         scene = new THREE.Scene();
         camera = new THREE.OrthographicCamera(
@@ -776,7 +781,6 @@
         renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
         this.createNails();
       }
-
       createNails() {
         const shaderMaterial = new THREE.ShaderMaterial({
           uniforms: {
@@ -804,7 +808,6 @@
           scene.add(nail);
         });
       }
-
       async setupHandTracking() {
         const vision = await FilesetResolver.forVisionTasks("https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.3/wasm");
         handLandmarker = await HandLandmarker.createFromOptions(vision, {
@@ -816,13 +819,11 @@
           numHands: 1
         });
       }
-
       async loadResources() {
         await this.loadDesigns();
         this.buildDesignUI();
         this.buildMaskUI();
       }
-
       async loadDesigns() {
         const loadImage = (name) => new Promise((resolve) => {
           const img = new Image();
@@ -850,7 +851,6 @@
         });
         await Promise.all(DESIGNS.map(loadImage));
       }
-
       buildDesignUI() {
         elements.designPicker.innerHTML = '';
         DESIGNS.forEach(name => {
@@ -873,7 +873,6 @@
           elements.designPicker.appendChild(btn);
         });
       }
-
       buildMaskUI() {
         elements.maskPicker.innerHTML = '';
         MASKS.forEach((mask, index) => {
@@ -884,7 +883,6 @@
           elements.maskPicker.appendChild(btn);
         });
       }
-
       startRenderLoop() {
         const render = () => {
           this.detectHands();
@@ -903,14 +901,12 @@
         };
         render();
       }
-
       updateConfetti() {
         confetti = confetti.filter(p => p.life > 0);
         confetti.forEach(p => p.update());
         confettiCtx.clearRect(0, 0, elements.confettiCanvas.width, elements.confettiCanvas.height);
         confetti.forEach(p => p.draw(confettiCtx));
       }
-
       updateRainbowShine() {
         state.rainbowTime += 0.02;
         FINGER_KEYS.forEach(key => {
@@ -920,7 +916,6 @@
           }
         });
       }
-
       detectHands() {
         if (!handLandmarker || elements.video.readyState < 2) return;
         try {
@@ -944,7 +939,6 @@
           console.error('Hand detection error:', error);
         }
       }
-
       calculateHandSize(landmarks) {
         const wristStart = landmarks[0];
         const wristEnd = landmarks[1];
@@ -955,7 +949,6 @@
         scaleFactor = Math.max(scaleFactor, CONFIG.MIN_SCALE_FACTOR);
         state.currentHandSize = scaleFactor;
       }
-
       updatePalmOrientation(landmarks) {
         const wrist = landmarks[0];
         const middleMCP = landmarks[9];
@@ -964,7 +957,6 @@
           y: (middleMCP.y - wrist.y) * window.innerHeight
         };
       }
-
       smoothLandmarks(newLandmarks) {
         if (!state.smoothedLandmarks) {
           state.smoothedLandmarks = newLandmarks.map(lm => ({ ...lm }));
@@ -976,9 +968,7 @@
         }
         return state.smoothedLandmarks;
       }
-
       lerp(start, end, factor) { return start * (1 - factor) + end * factor; }
-
       renderAR() {
         if (!state.lastLandmarks) return;
         FINGER_KEYS.forEach((key, index) => {
@@ -992,7 +982,6 @@
         });
         renderer.render(scene, camera);
       }
-
       updateNailPosition(fingerKey) {
         const landmarks = state.lastLandmarks;
         const nail = nails[fingerKey];
@@ -1011,7 +1000,6 @@
           nail.material.needsUpdate = true;
         }
       }
-
       updateThumbNailPosition(fingerKey, landmarks) {
         const nail = nails[fingerKey];
         const { tip, mcp, ip } = FINGER_INDICES[fingerKey];
@@ -1037,7 +1025,6 @@
         nail.scale.set(nailHeight * aspect, nailHeight, 1);
         nail.rotation.z = angle;
       }
-
       updateFingerNailPosition(fingerKey, landmarks) {
         const nail = nails[fingerKey];
         const { tip, pip } = FINGER_INDICES[fingerKey];
@@ -1058,12 +1045,10 @@
         nail.scale.set(nailHeight * aspect, nailHeight, 1);
         nail.rotation.z = angle;
       }
-
       hideAllNails() {
         FINGER_KEYS.forEach(key => nails[key].visible = false);
         renderer.render(scene, camera);
       }
-
       handleCanvasClick(event) {
         if (state.isApplyAll || !state.lastLandmarks) return;
         event.preventDefault();
@@ -1072,7 +1057,6 @@
         const y = (event.clientY || event.touches[0].clientY) - rect.top;
         state.selectedFingerIndex = this.getClosestFinger(x, y);
       }
-
       getClosestFinger(touchX, touchY) {
         let minDist = Infinity, closestIndex = -1;
         FINGER_KEYS.forEach((key, index) => {
@@ -1088,26 +1072,22 @@
         });
         return closestIndex;
       }
-
       toggleLanguage() {
         state.currentLang = state.currentLang === 'en' ? 'uk' : 'en';
         this.updateUI();
         elements.langBtn.textContent = state.currentLang === 'en' ? 'UK' : 'EN';
       }
-
       setApplyAllMode() {
         state.isApplyAll = true;
         state.selectedFingerIndex = -1;
         elements.applyAllBtn.classList.add('active');
         elements.selectFingerBtn.classList.remove('active');
       }
-
       setSelectFingerMode() {
         state.isApplyAll = false;
         elements.applyAllBtn.classList.remove('active');
         elements.selectFingerBtn.classList.add('active');
       }
-
       selectDesign(name) {
         state.currentDesign = name;
         document.querySelectorAll('.design-btn').forEach(btn => {
@@ -1115,18 +1095,15 @@
         });
         this.triggerConfetti();
       }
-
       selectMask(maskId, index) {
         state.currentMask = maskId;
         document.querySelectorAll('.mask-btn').forEach((btn, i) => {
           btn.classList.toggle('selected', i === index);
         });
       }
-
       uploadDesign() {
         elements.designUpload.click();
       }
-
       handleDesignUpload(event) {
         const file = event.target.files[0];
         if (!file) return;
@@ -1155,7 +1132,6 @@
         reader.readAsDataURL(file);
         event.target.value = '';
       }
-
       triggerConfetti() {
         const rect = elements.designPicker.getBoundingClientRect();
         const x = rect.left + rect.width / 2;
@@ -1164,7 +1140,6 @@
           confetti.push(new ConfettiParticle(x + (Math.random() - 0.5) * 100, y));
         }
       }
-
       updateUI() {
         const t = translations[state.currentLang];
         document.title = t.title;
@@ -1177,25 +1152,20 @@
         elements.langBtn.textContent = state.currentLang === 'en' ? 'UK' : 'EN';
         this.updateSoundButton();
       }
-
       updateSoundButton() {
         elements.soundBtn.textContent = state.isMuted ? 'Muted' : 'Sound';
       }
-
       showCameraIndicator() {
         elements.cameraIndicator.classList.add('show');
         setTimeout(() => elements.cameraIndicator.classList.remove('show'), 3000);
       }
-
       showHandIndicator() { elements.handIndicator.classList.add('show'); }
       hideHandIndicator() { elements.handIndicator.classList.remove('show'); }
-
       hideLoading() {
         elements.loading.style.display = 'none';
         elements.video.style.display = 'block';
         elements.canvas.style.display = 'block';
       }
-
       handleResize() {
         if (!camera || !renderer) return;
         camera.left = -window.innerWidth / 2;
@@ -1205,7 +1175,6 @@
         camera.updateProjectionMatrix();
         renderer.setSize(window.innerWidth, window.innerHeight);
       }
-
       handleError(error) {
         console.error('App error:', error);
         const t = translations[state.currentLang];
@@ -1218,14 +1187,12 @@
         elements.loading.style.display = 'flex';
         document.getElementById('errorRetry').addEventListener('click', () => location.reload());
       }
-
       cleanup() {
         if (state.animationFrameId) cancelAnimationFrame(state.animationFrameId);
         if (elements.video.srcObject) elements.video.srcObject.getTracks().forEach(track => track.stop());
         if (handLandmarker) handLandmarker.close();
       }
     }
-
     window.addEventListener('DOMContentLoaded', () => {
       if (!navigator.onLine) {
         document.getElementById('loading').innerHTML = `
