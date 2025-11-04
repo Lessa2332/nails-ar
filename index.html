@@ -29,7 +29,6 @@
     #video { z-index: 1; display: none; }
     #canvas { z-index: 2; display: none; }
     #confettiCanvas { z-index: 60; pointer-events: none; }
-
     .control-btn {
       position: fixed;
       width: 50px;
@@ -48,16 +47,14 @@
       transition: all 0.3s ease;
       box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
     }
-    .control-btn:hover { 
-      transform: scale(1.15); 
-      background: rgba(255, 255, 255, 0.25); 
+    .control-btn:hover {
+      transform: scale(1.15);
+      background: rgba(255, 255, 255, 0.25);
       box-shadow: 0 0 15px rgba(255, 255, 255, 0.4);
     }
-
     #langBtn { top: 20px; right: 20px; font-weight: bold; font-size: 16px; }
     #soundBtn { top: 20px; left: 20px; }
     #uploadBtn { top: 80px; left: 20px; }
-
     #authorBtn {
       position: fixed;
       top: 78px;
@@ -87,7 +84,6 @@
       0%, 100% { box-shadow: 0 6px 20px rgba(0, 114, 255, 0.5), 0 0 0 4px rgba(255, 215, 0, 0.3); }
       50% { box-shadow: 0 8px 30px rgba(0, 114, 255, 0.7), 0 0 0 6px rgba(255, 215, 0, 0.5); }
     }
-
     #modeControls {
       position: fixed;
       top: 20px;
@@ -116,16 +112,15 @@
       box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
       white-space: nowrap;
     }
-    .mode-btn:hover { 
-      transform: translateY(-2px); 
+    .mode-btn:hover {
+      transform: translateY(-2px);
       box-shadow: 0 5px 15px rgba(0, 198, 255, 0.4);
     }
-    .mode-btn.active { 
-      background: linear-gradient(135deg, #ff6b6b, #ff4757); 
-      animation: pulse 2s infinite; 
+    .mode-btn.active {
+      background: linear-gradient(135deg, #ff6b6b, #ff4757);
+      animation: pulse 2s infinite;
       box-shadow: 0 0 15px rgba(255, 107, 107, 0.5);
     }
-
     #designPicker {
       position: fixed;
       bottom: 30px;
@@ -155,17 +150,16 @@
       transition: all 0.3s ease;
       flex-shrink: 0;
     }
-    .design-btn:hover { 
-      transform: scale(1.1); 
-      border-color: rgba(255, 255, 255, 0.5); 
+    .design-btn:hover {
+      transform: scale(1.1);
+      border-color: rgba(255, 255, 255, 0.5);
       box-shadow: 0 0 15px rgba(255, 255, 255, 0.3);
     }
-    .design-btn.selected { 
-      transform: scale(1.15); 
-      border-color: #ffd700; 
-      box-shadow: 0 0 0 3px #ffd700, 0 0 20px rgba(255, 215, 0, 0.5); 
+    .design-btn.selected {
+      transform: scale(1.15);
+      border-color: #ffd700;
+      box-shadow: 0 0 0 3px #ffd700, 0 0 20px rgba(255, 215, 0, 0.5);
     }
-
     #maskPicker {
       position: fixed;
       bottom: 150px;
@@ -201,17 +195,16 @@
       font-size: 12px;
       text-align: center;
     }
-    .mask-btn:hover { 
-      transform: scale(1.1); 
-      border-color: rgba(255, 255, 255, 0.5); 
+    .mask-btn:hover {
+      transform: scale(1.1);
+      border-color: rgba(255, 255, 255, 0.5);
       box-shadow: 0 0 15px rgba(255, 255, 255, 0.3);
     }
-    .mask-btn.selected { 
-      transform: scale(1.15); 
-      border-color: #ffd700; 
-      box-shadow: 0 0 0 3px #ffd700, 0 0 20px rgba(255, 215, 0, 0.5); 
+    .mask-btn.selected {
+      transform: scale(1.15);
+      border-color: #ffd700;
+      box-shadow: 0 0 0 3px #ffd700, 0 0 20px rgba(255, 215, 0, 0.5);
     }
-
     #loading {
       position: fixed;
       top: 0;
@@ -263,7 +256,6 @@
     #cameraIndicator { top: 20px; }
     #handIndicator { top: 160px; }
     .indicator.show { display: flex; animation: slideDown 0.3s ease; }
-
     #errorRetry {
       margin-top: 20px;
       padding: 12px 24px;
@@ -277,18 +269,16 @@
       transition: all 0.3s ease;
       box-shadow: 0 5px 15px rgba(0, 114, 255, 0.4);
     }
-    #errorRetry:hover { 
-      transform: translateY(-2px); 
+    #errorRetry:hover {
+      transform: translateY(-2px);
       box-shadow: 0 8px 20px rgba(0, 114, 255, 0.6);
     }
-
     @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
     @keyframes slideDown {
       from { opacity: 0; transform: translateX(-50%) translateY(-10px); }
       to { opacity: 1; transform: translateX(-50%) translateY(0); }
     }
-
     /* Snowflakes */
     .snowflake {
       position: absolute;
@@ -300,11 +290,9 @@
       pointer-events: none;
       animation: fall linear infinite;
     }
-
     @keyframes fall {
       to { transform: translateY(100vh) rotate(360deg); }
     }
-
     @media (max-width: 768px) {
       .control-btn { width: 44px; height: 44px; font-size: 17px; }
       #authorBtn { width: 50px; height: 50px; top: 74px; font-size: 22px; }
@@ -322,39 +310,30 @@
     <div id="loadingText">Loading New Year Nail Magic...</div>
     <p>Please allow camera access</p>
   </div>
-
   <video id="video" playsinline muted></video>
   <canvas id="canvas"></canvas>
   <canvas id="confettiCanvas"></canvas>
-
   <input type="file" id="designUpload" accept="image/*" style="display: none;">
-
   <button id="langBtn" class="control-btn" aria-label="Switch language">UK</button>
   <button id="soundBtn" class="control-btn" aria-label="Toggle sound">🔇</button>
   <button id="uploadBtn" class="control-btn" aria-label="Upload custom design">📁</button>
-
   <a href="https://smartlessa.etsy.com" target="_blank" id="authorBtn" aria-label="Author: smartlessa.etsy.com">
     Author
   </a>
-
   <div id="modeControls">
     <button class="mode-btn active" id="applyAllBtn" aria-label="Apply to all fingers">All Fingers</button>
     <button class="mode-btn" id="selectFingerBtn" aria-label="Select finger">Select Finger</button>
   </div>
-
   <div id="maskPicker"></div>
   <div id="designPicker"></div>
-
   <div id="cameraIndicator" class="indicator">
     <span>Camera</span>
     <span>Camera Active</span>
   </div>
-
   <div id="handIndicator" class="indicator">
     <span>Hand</span>
     <span>Show your hand</span>
   </div>
-
   <script type="importmap">
     {
       "imports": {
@@ -366,7 +345,6 @@
   <script type="module">
     import * as THREE from 'three';
     import { FilesetResolver, HandLandmarker } from "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.3/+esm";
-
     const CONFIG = {
       SMOOTHING_FACTOR: 0.7,
       HAND_NOT_DETECTED_THRESHOLD: 10,
@@ -383,7 +361,6 @@
       WRIST_DISTANCE_REF: 0.1, SCALE_SENSITIVITY: 1.8,
       MAX_SCALE_FACTOR: 2.0, MIN_SCALE_FACTOR: 0.6
     };
-
     const FINGER_INDICES = {
       thumb: { tip: 4, mcp: 2, pip: 3, ip: 3 },
       index: { tip: 8, mcp: 5, pip: 6, dip: 7 },
@@ -392,7 +369,6 @@
       pinky: { tip: 20, mcp: 17, pip: 18, dip: 19 }
     };
     const FINGER_KEYS = Object.keys(FINGER_INDICES);
-
     const translations = {
       en: {
         title: "New Year Nail AR Try-On 2026",
@@ -419,7 +395,6 @@
         handNotDetected: "Покажи руку"
       }
     };
-
     const state = {
       currentLang: 'en',
       currentDesign: "1",
@@ -431,13 +406,13 @@
       smoothedLandmarks: null,
       handNotDetectedCount: 0,
       animationFrameId: null,
+      palmOrientation: { x: 0, y: 0 },
       currentHandSize: 1.0,
       wristDistance: 0,
       rainbowTime: 0,
       isAudioUnlocked: false,
       customDesigns: []
     };
-
     const elements = {
       video: document.getElementById("video"),
       canvas: document.getElementById("canvas"),
@@ -456,23 +431,20 @@
       cameraIndicator: document.getElementById("cameraIndicator"),
       handIndicator: document.getElementById("handIndicator")
     };
-
     const confettiCtx = elements.confettiCanvas.getContext("2d");
     let confetti = [];
-
     function resizeCanvases() {
       elements.confettiCanvas.width = window.innerWidth;
       elements.confettiCanvas.height = window.innerHeight;
     }
     resizeCanvases();
     window.addEventListener('resize', resizeCanvases);
-
     // Create snowflakes
     function createSnowflakes() {
       const snowflakesContainer = document.createElement('div');
       snowflakesContainer.id = 'snowflakes';
       document.body.appendChild(snowflakesContainer);
-      
+     
       for (let i = 0; i < 50; i++) {
         const snowflake = document.createElement('div');
         snowflake.className = 'snowflake';
@@ -485,14 +457,15 @@
         snowflakesContainer.appendChild(snowflake);
       }
     }
-
+    // ЛОКАЛЬНІ АУДІОФАЙЛИ - added click sound
     const audio = {
-      bgMusic: new Audio('audio/bg-music.mp3')
+      bgMusic: new Audio('audio/bg-music.mp3'),
+      click: new Audio('audio/click.mp3')
     };
     audio.bgMusic.loop = true;
     audio.bgMusic.volume = 0.4;
-
-    const DESIGNS = ["1", "2", "3"];
+    audio.click.volume = 0.5;
+    const DESIGNS = ["1", "2", "3"]; // Keep as per repo files
     const MASKS = [
       { id: "none", name: "None" },
       { id: "oval", name: "Oval" },
@@ -501,11 +474,9 @@
       { id: "gel", name: "Gel Effect" }
     ];
     const nailTextures = {};
-
     let scene, camera, renderer;
     const nails = {};
     let handLandmarker;
-
     const NAIL_SHADER = {
       vertexShader: `
         varying vec2 vUv;
@@ -527,7 +498,6 @@
         varying vec2 vUv;
         varying vec3 vNormal;
         varying vec3 vViewPosition;
-
         vec3 holiday(float t) {
           return vec3(
             0.5 + 0.5 * sin(t),
@@ -535,46 +505,39 @@
             0.5 + 0.5 * sin(t + 4.0)
           );
         }
-
         float ovalMask(vec2 uv) {
           vec2 center = vec2(0.5, 0.5);
           vec2 d = uv - center;
           float r = 0.5;
           float ellipse = (d.x * d.x) / (r * r) + (d.y * d.y) / (r * r * 0.7);
-          return step(ellipse, 1.0);
+          return 1.0 - smoothstep(0.99, 1.0, ellipse); // Soft edge
         }
-
         float roundedSquareMask(vec2 uv) {
           vec2 center = vec2(0.5, 0.5);
           vec2 d = abs(uv - center);
           float radius = 0.1;
           vec2 q = d - vec2(0.5 - radius);
           float dist = length(max(q, 0.0)) + min(max(q.x, q.y), 0.0) - radius;
-          return step(dist, 0.0);
+          return 1.0 - smoothstep(0.0, 0.01, dist); // Soft edge
         }
-
         float fleurMask(vec2 uv) {
           vec2 center = vec2(0.5, 0.5);
           vec2 d = uv - center;
           float angle = atan(d.y, d.x);
           float r = length(d) * 2.0;
           float flower = 0.5 + 0.3 * cos(6.0 * angle);
-          return step(r, flower);
+          return 1.0 - smoothstep(flower - 0.05, flower, r); // Soft edge
         }
-
         float gelEffect(vec2 uv) {
           vec2 center = vec2(0.5, 0.5);
           float dist = distance(uv, center);
           float shine = 0.8 + 0.2 * sin(time * 3.0 + dist * 10.0);
           return shine;
         }
-
         void main() {
           vec4 texColor = texture2D(map, vUv);
           if (texColor.a < 0.1) discard;
-
           vec3 color = texColor.rgb;
-
           float mask = 1.0;
           if (maskType == 1) {
             mask = ovalMask(vUv);
@@ -583,30 +546,23 @@
           } else if (maskType == 3) {
             mask = fleurMask(vUv);
           }
-          
-          if (mask < 0.5) discard;
-
+          // Removed discard; use alpha multiplication for soft clipping
           if (maskType == 4) {
             float gel = gelEffect(vUv);
             color *= gel;
           }
-
           float shine = smoothstep(0.3, 0.7, vUv.y + sin(vUv.y * 8.0 - time * 1.5) * 0.1);
           shine = pow(shine, 2.0) * 0.5;
           vec3 highlight = holiday(time * 3.0) * shine * shineIntensity;
-
           float fresnel = pow(1.0 - dot(normalize(vViewPosition), vNormal), 3.0);
           vec3 rim = vec3(1.0, 0.9, 0.8) * fresnel * 0.3;
-
           float shadow = smoothstep(0.0, 0.25, vUv.y);
           color *= (1.0 - shadow * 0.25);
-
           color = color + highlight + rim;
           gl_FragColor = vec4(color, texColor.a * mask);
         }
       `
     };
-
     class ConfettiParticle {
       constructor(x, y) {
         this.x = x; this.y = y;
@@ -637,10 +593,8 @@
         ctx.restore();
       }
     }
-
     class NailARApplication {
       constructor() { this.init(); }
-
       async init() {
         try {
           this.setupEventListeners();
@@ -658,7 +612,6 @@
           this.handleError(error);
         }
       }
-
       unlockAudio() {
         const unlock = () => {
           if (state.isAudioUnlocked) return;
@@ -672,11 +625,16 @@
         document.addEventListener('click', unlock, { once: true });
         document.addEventListener('touchstart', unlock, { once: true });
       }
-
       setupAudio() {
         audio.bgMusic.pause();
       }
-
+      playSound(sound) { // Added back playSound function
+        if (state.isMuted || !state.isAudioUnlocked) return;
+        try {
+          sound.currentTime = 0;
+          sound.play().catch(() => {});
+        } catch (e) {}
+      }
       toggleSound() {
         state.isMuted = !state.isMuted;
         if (state.isMuted) {
@@ -685,8 +643,8 @@
           audio.bgMusic.play().catch(() => {});
         }
         this.updateSoundButton();
+        this.playSound(audio.click);
       }
-
       setupEventListeners() {
         elements.langBtn.addEventListener('click', () => this.toggleLanguage());
         elements.soundBtn.addEventListener('click', () => this.toggleSound());
@@ -699,7 +657,6 @@
         window.addEventListener('resize', () => { this.handleResize(); resizeCanvases(); });
         window.addEventListener('beforeunload', () => this.cleanup());
       }
-
       async setupCamera() {
         try {
           const constraints = { video: { facingMode: "environment", width: { ideal: 1280 }, height: { ideal: 720 }, frameRate: { ideal: 30 } } };
@@ -712,7 +669,6 @@
           throw new Error('CAMERA_ERROR');
         }
       }
-
       async initWebGL() {
         scene = new THREE.Scene();
         camera = new THREE.OrthographicCamera(-window.innerWidth / 2, window.innerWidth / 2, window.innerHeight / 2, -window.innerHeight / 2, 0.1, 1000);
@@ -722,12 +678,11 @@
         renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
         this.createNails();
       }
-
       createNails() {
         const shaderMaterial = new THREE.ShaderMaterial({
-          uniforms: { 
-            map: { value: null }, 
-            time: { value: 0 }, 
+          uniforms: {
+            map: { value: null },
+            time: { value: 0 },
             shineIntensity: { value: 1.0 },
             maskType: { value: 0 }
           },
@@ -738,7 +693,6 @@
           depthTest: false,
           depthWrite: false
         });
-
         FINGER_KEYS.forEach(key => {
           const aspect = CONFIG.NAIL_ASPECT_RATIOS[key];
           const geometry = new THREE.PlaneGeometry(aspect, 1);
@@ -751,7 +705,6 @@
           scene.add(nail);
         });
       }
-
       async setupHandTracking() {
         const vision = await FilesetResolver.forVisionTasks("https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.3/wasm");
         handLandmarker = await HandLandmarker.createFromOptions(vision, {
@@ -760,27 +713,25 @@
           numHands: 1
         });
       }
-
       async loadResources() {
         await this.loadDesigns();
         this.buildDesignUI();
         this.buildMaskUI();
       }
-
       async loadDesigns() {
         const loadImage = (name) => new Promise((resolve) => {
           const img = new Image();
-          img.crossOrigin = "anonymous";
-          
+          // Removed crossOrigin="anonymous" to fix loading issues for local/same-origin images
+         
           // ВИПРАВЛЕННЯ: Детальна перевірка завантаження
           const imagePath = `nails/halloween/${name}.png`;
           console.log(`🔄 Loading design: ${imagePath}`);
-          
+         
           img.src = imagePath;
-          
+         
           img.onload = () => {
             console.log(`✅ Successfully loaded: ${imagePath}`);
-            
+           
             // Створюємо текстуру з правильними налаштуваннями
             const texture = new THREE.CanvasTexture(img);
             texture.wrapS = THREE.ClampToEdgeWrapping;
@@ -789,44 +740,43 @@
             texture.magFilter = THREE.LinearFilter;
             texture.format = THREE.RGBAFormat;
             texture.generateMipmaps = false;
-            
+           
             nailTextures[name] = texture;
             console.log(`✅ Texture created for: ${name}`);
             resolve();
           };
-          
+         
           img.onerror = (e) => {
             console.error(`❌ FAILED to load: ${imagePath}`, e);
-            
+           
             // Створюємо placeholder
             const canvas = document.createElement('canvas');
-            canvas.width = 100; 
+            canvas.width = 100;
             canvas.height = 170;
             const ctx = canvas.getContext('2d');
-            
+           
             const colors = ['#00c6ff', '#ff6b6b', '#ffd700'];
             ctx.fillStyle = colors[parseInt(name) - 1] || '#00c6ff';
             ctx.fillRect(0, 0, 100, 170);
-            
+           
             ctx.fillStyle = 'white';
             ctx.font = '16px Arial';
             ctx.textAlign = 'center';
             ctx.fillText(`Design ${name}`, 50, 90);
-            
+           
             const texture = new THREE.CanvasTexture(canvas);
             nailTextures[name] = texture;
             console.log(`🔄 Using placeholder for: ${name}`);
             resolve();
           };
         });
-        
+       
         await Promise.all(DESIGNS.map(loadImage));
-        
+       
         // Оновлюємо матеріали після завантаження всіх текстур
         this.updateNailMaterials();
         console.log('✅ All nail materials updated');
       }
-
       // НОВА ФУНКЦІЯ: Оновлення матеріалів нігтів
       updateNailMaterials() {
         FINGER_KEYS.forEach(key => {
@@ -838,20 +788,19 @@
           }
         });
       }
-
       buildDesignUI() {
         elements.designPicker.innerHTML = '';
-        
+       
         DESIGNS.forEach(name => {
           const btn = document.createElement('img');
           const imagePath = `nails/halloween/${name}.png`;
           console.log(`🔄 Creating UI button for: ${imagePath}`);
-          
+         
           btn.src = imagePath;
           btn.onerror = (e) => {
             console.error(`❌ UI image failed: ${imagePath}`, e);
             const canvas = document.createElement('canvas');
-            canvas.width = 60; 
+            canvas.width = 60;
             canvas.height = 90;
             const ctx = canvas.getContext('2d');
             const colors = ['#00c6ff', '#ff6b6b', '#ffd700'];
@@ -863,7 +812,7 @@
             ctx.fillText(`Design ${name}`, 30, 45);
             btn.src = canvas.toDataURL();
           };
-          
+         
           btn.className = `design-btn ${name === state.currentDesign ? 'selected' : ''}`;
           btn.alt = `Design ${name}`;
           btn.dataset.id = name;
@@ -871,7 +820,6 @@
           btn.addEventListener('click', () => { this.selectDesign(name); });
           elements.designPicker.appendChild(btn);
         });
-
         state.customDesigns.forEach((design) => {
           const btn = document.createElement('img');
           btn.src = design.url;
@@ -883,7 +831,6 @@
           elements.designPicker.appendChild(btn);
         });
       }
-
       buildMaskUI() {
         elements.maskPicker.innerHTML = '';
         MASKS.forEach((mask, index) => {
@@ -894,14 +841,12 @@
           elements.maskPicker.appendChild(btn);
         });
       }
-
       startRenderLoop() {
         const render = () => {
           this.detectHands();
           this.renderAR();
           this.updateConfetti();
           this.updateHolidayShine();
-
           const time = performance.now() * 0.001;
           FINGER_KEYS.forEach(key => {
             const mat = nails[key].material;
@@ -910,19 +855,16 @@
               mat.uniforms.maskType.value = MASKS.findIndex(m => m.id === state.currentMask);
             }
           });
-
           state.animationFrameId = requestAnimationFrame(render);
         };
         render();
       }
-
       updateConfetti() {
         confetti = confetti.filter(p => p.life > 0);
         confetti.forEach(p => p.update());
         confettiCtx.clearRect(0, 0, elements.confettiCanvas.width, elements.confettiCanvas.height);
         confetti.forEach(p => p.draw(confettiCtx));
       }
-
       updateHolidayShine() {
         state.rainbowTime += 0.02;
         FINGER_KEYS.forEach(key => {
@@ -932,7 +874,6 @@
           }
         });
       }
-
       detectHands() {
         if (!handLandmarker || elements.video.readyState < 2) return;
         try {
@@ -942,6 +883,7 @@
             this.hideHandIndicator();
             const landmarks = predictions.landmarks[0];
             state.lastLandmarks = this.smoothLandmarks(landmarks);
+            this.updatePalmOrientation(landmarks); // Added back for stability
             this.calculateHandSize(landmarks);
           } else {
             state.handNotDetectedCount++;
@@ -954,7 +896,14 @@
           console.error('Hand detection error:', error);
         }
       }
-
+      updatePalmOrientation(landmarks) { // Added back
+        const wrist = landmarks[0];
+        const middleMCP = landmarks[9];
+        state.palmOrientation = {
+          x: (middleMCP.x - wrist.x) * window.innerWidth,
+          y: (middleMCP.y - wrist.y) * window.innerHeight
+        };
+      }
       calculateHandSize(landmarks) {
         const wristStart = landmarks[0];
         const wristEnd = landmarks[1];
@@ -965,7 +914,6 @@
         scaleFactor = Math.max(scaleFactor, CONFIG.MIN_SCALE_FACTOR);
         state.currentHandSize = scaleFactor;
       }
-
       smoothLandmarks(newLandmarks) {
         if (!state.smoothedLandmarks) {
           state.smoothedLandmarks = newLandmarks.map(lm => ({ ...lm }));
@@ -977,9 +925,7 @@
         }
         return state.smoothedLandmarks;
       }
-
       lerp(start, end, factor) { return start * (1 - factor) + end * factor; }
-
       renderAR() {
         if (!state.lastLandmarks) return;
         FINGER_KEYS.forEach((key, index) => {
@@ -993,7 +939,6 @@
         });
         renderer.render(scene, camera);
       }
-
       updateNailPosition(fingerKey) {
         const landmarks = state.lastLandmarks;
         const nail = nails[fingerKey];
@@ -1002,22 +947,21 @@
         } else {
           this.updateFingerNailPosition(fingerKey, landmarks);
         }
-        
+       
         let texture = nailTextures[state.currentDesign];
-        
+       
         if (!texture) {
           const customDesign = state.customDesigns.find(d => d.id === state.currentDesign);
           if (customDesign) {
             texture = customDesign.texture;
           }
         }
-        
+       
         if (texture) {
           nail.material.uniforms.map.value = texture;
           nail.material.needsUpdate = true;
         }
       }
-
       updateThumbNailPosition(fingerKey, landmarks) {
         const nail = nails[fingerKey];
         const { tip, mcp, ip } = FINGER_INDICES[fingerKey];
@@ -1037,7 +981,6 @@
         nail.scale.set(nailHeight * aspect, nailHeight, 1);
         nail.rotation.z = angle;
       }
-
       updateFingerNailPosition(fingerKey, landmarks) {
         const nail = nails[fingerKey];
         const { tip, pip } = FINGER_INDICES[fingerKey];
@@ -1055,12 +998,10 @@
         nail.scale.set(nailHeight * aspect, nailHeight, 1);
         nail.rotation.z = angle;
       }
-
       hideAllNails() {
         FINGER_KEYS.forEach(key => nails[key].visible = false);
         renderer.render(scene, camera);
       }
-
       handleCanvasClick(event) {
         if (state.isApplyAll || !state.lastLandmarks) return;
         event.preventDefault();
@@ -1068,8 +1009,8 @@
         const x = (event.clientX || event.touches[0].clientX) - rect.left;
         const y = (event.clientY || event.touches[0].clientY) - rect.top;
         state.selectedFingerIndex = this.getClosestFinger(x, y);
+        this.playSound(audio.click); // Added sound
       }
-
       getClosestFinger(touchX, touchY) {
         let minDist = Infinity, closestIndex = -1;
         FINGER_KEYS.forEach((key, index) => {
@@ -1085,53 +1026,51 @@
         });
         return closestIndex;
       }
-
       toggleLanguage() {
         state.currentLang = state.currentLang === 'en' ? 'uk' : 'en';
         this.updateUI();
         elements.langBtn.textContent = state.currentLang === 'en' ? 'UK' : 'EN';
+        this.playSound(audio.click); // Added sound
       }
-
       setApplyAllMode() {
         state.isApplyAll = true;
         state.selectedFingerIndex = -1;
         elements.applyAllBtn.classList.add('active');
         elements.selectFingerBtn.classList.remove('active');
+        this.playSound(audio.click); // Added sound
       }
-
       setSelectFingerMode() {
         state.isApplyAll = false;
         elements.applyAllBtn.classList.remove('active');
         elements.selectFingerBtn.classList.add('active');
+        this.playSound(audio.click); // Added sound
       }
-
       selectDesign(designId) {
         state.currentDesign = designId;
-        
+       
         // Оновлюємо матеріали при зміні дизайну
         this.updateNailMaterials();
-        
+       
         document.querySelectorAll('.design-btn').forEach(btn => {
           btn.classList.toggle('selected', btn.dataset.id === designId);
         });
+        this.playSound(audio.click); // Added sound
         this.triggerConfetti();
       }
-
       selectMask(maskId, index) {
         state.currentMask = maskId;
         document.querySelectorAll('.mask-btn').forEach((btn, i) => {
           btn.classList.toggle('selected', i === index);
         });
+        this.playSound(audio.click); // Added sound
       }
-
       uploadDesign() {
         elements.designUpload.click();
       }
-
       handleDesignUpload(event) {
         const file = event.target.files[0];
         if (!file) return;
-        
+       
         const reader = new FileReader();
         reader.onload = (e) => {
           const img = new Image();
@@ -1140,25 +1079,24 @@
             texture.minFilter = THREE.LinearFilter;
             texture.magFilter = THREE.LinearFilter;
             texture.generateMipmaps = false;
-            
+           
             const designId = `custom_${Date.now()}`;
-            
+           
             state.customDesigns.push({
               id: designId,
               url: e.target.result,
               texture: texture
             });
-            
+           
             this.buildDesignUI();
             this.selectDesign(designId);
           };
           img.src = e.target.result;
         };
         reader.readAsDataURL(file);
-        
+       
         event.target.value = '';
       }
-
       triggerConfetti() {
         const rect = elements.designPicker.getBoundingClientRect();
         const x = rect.left + rect.width / 2;
@@ -1167,7 +1105,6 @@
           confetti.push(new ConfettiParticle(x + (Math.random() - 0.5) * 100, y));
         }
       }
-
       updateUI() {
         const t = translations[state.currentLang];
         document.title = t.title;
@@ -1180,25 +1117,20 @@
         elements.langBtn.textContent = state.currentLang === 'en' ? 'UK' : 'EN';
         this.updateSoundButton();
       }
-
       updateSoundButton() {
         elements.soundBtn.textContent = state.isMuted ? '🔇' : '🔊';
       }
-
       showCameraIndicator() {
         elements.cameraIndicator.classList.add('show');
         setTimeout(() => elements.cameraIndicator.classList.remove('show'), 3000);
       }
-
       showHandIndicator() { elements.handIndicator.classList.add('show'); }
       hideHandIndicator() { elements.handIndicator.classList.remove('show'); }
-
       hideLoading() {
         elements.loading.style.display = 'none';
         elements.video.style.display = 'block';
         elements.canvas.style.display = 'block';
       }
-
       handleResize() {
         if (!camera || !renderer) return;
         camera.left = -window.innerWidth / 2;
@@ -1208,7 +1140,6 @@
         camera.updateProjectionMatrix();
         renderer.setSize(window.innerWidth, window.innerHeight);
       }
-
       handleError(error) {
         console.error('App error:', error);
         const t = translations[state.currentLang];
@@ -1221,14 +1152,12 @@
         elements.loading.style.display = 'flex';
         document.getElementById('errorRetry').addEventListener('click', () => location.reload());
       }
-
       cleanup() {
         if (state.animationFrameId) cancelAnimationFrame(state.animationFrameId);
         if (elements.video.srcObject) elements.video.srcObject.getTracks().forEach(track => track.stop());
         if (handLandmarker) handLandmarker.close();
       }
     }
-
     window.addEventListener('DOMContentLoaded', () => new NailARApplication());
   </script>
 </body>
