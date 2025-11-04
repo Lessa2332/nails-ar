@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
   <title>Professional Nail AR Try-On</title>
-  <link rel="icon" type="image/png" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAAOxAAADsQBlSsOGwAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAAAJDSURBVHic7ZddbJNXFMc/Z87XtqS0pS1tKaUspS2lQIGPYQtsgCzZkLAhE8TExMRoTMTEi4kvXngxEy98MXHhZV+8mZgYMzExMTHZECMbA9kYjLEBxRQKpaV0fWvb2n7t+3pxU7qBdKUf1CXZf7r3nnvOuef+/++551zLNE3TJIQQQgghhBBCCLFFlq0OYDM0zUQFqAaKgWKgEMgGXCZgAA1AHdBk61rj9Zs2EID/AS6gCigCsoA0wIq/2AYGgW6gFbgPdJmmOWQ7ARoM4BqA4wAeBfKADEAH+oEWoM2yLE2zJQANBnDdBLYDhwEn0ATcN03T2MjvNxnADQO4CeBJIA9oAW6bptm/GZFuOIBrBrAFOAIUA3eA26Zp9m9GpFsO4JoBbAeOAkXALeC2aZr9mxHrlgO4ZgDbgLNAEXAbuG2a5sBmJLrpAK4ZwDbgLFAE3AFum6Y5uFlJbjiAawawDTgHFAF3gVumaQ5tVpJbDuCaAWwDzgNFwD3glmmaQ5uV5JYDuGYA24DzQBHwELhlmubwZiW15QCuGcA24AJQBDwCbpmmObJZSW05gGsGsA24CBQBT4BbpmmObFaSWw7gmgFsAy4BRcBT4JZpmqObldSWA7hmANuAy0AR8Ay4ZZrm2GYlteUArhnANuAKUAS8AG6Zpjm+WUltOYBrBrANuAoUAa+AW6ZpTmxWUlsO4JoBbAOuAUXAG+CWaZoTm5XUlgO4ZgDbgOtAEfAOuGWa5uRmJbXlAK4ZwDbgBlAEvAdumaY5tVlJbTmAawawDbgJFAEfgVumadpKasMBrhnANuAWUAR8Am6Zpjm9WUluOYBrBrANuA0UAV+AW6Zpzm5WklsO4JoBbAPuAEXAN+CWaZpzmxHrlgO4ZgDbgLtAEfADuGWa5txmJLrpAK4ZwDbgHlAE/ARumaY5v1lJbTmAawawDbgPFAELwC3TNBc2K6ktB3DNAJwHngBFwB/glmmaC5uV5JYDuGYAzoMPQBGwCNwyTXNhs5LacgDXDMB54BFQBCwBt0zTXNysJLccwDUDcB54AhQBfwF3TNM0NisJAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP4H/gLh1cJq0V5h8AAAAABJRU5ErkJggg==">
+  <link rel="icon" type="image/png" href="data:image/png;base64,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">
   <style>
     * {
       margin: 0;
@@ -292,7 +292,7 @@
   <script type="module">
     import * as THREE from 'three';
     import { FilesetResolver, HandLandmarker } from "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.3";
-
+    
     const CONFIG = {
       SMOOTHING_FACTOR: 0.7,
       HAND_NOT_DETECTED_THRESHOLD: 10,
@@ -332,6 +332,7 @@
       ring: { tip: 16, mcp: 13, pip: 14, dip: 15 },
       pinky: { tip: 20, mcp: 17, pip: 18, dip: 19 }
     };
+
     const FINGER_KEYS = Object.keys(FINGER_INDICES);
 
     const translations = {
@@ -405,22 +406,24 @@
     audio.bgMusic.volume = 0.4;
 
     const DESIGNS = ["1", "2", "3"];
-
-    // ✅ Оновлено: лише професійні форми
+    
+    // Оновлені реалістичні форми нігтів
     const MASKS = [
       { id: "oval", name: "Oval" },
       { id: "round", name: "Round" },
       { id: "square", name: "Square" },
-      { id: "squoval", name: "Squoval" }
+      { id: "squoval", name: "Squoval" },
+      { id: "almond", name: "Almond" },
+      { id: "stiletto", name: "Stiletto" },
+      { id: "ballerina", name: "Ballerina" }
     ];
 
     const nailTextures = {};
     let scene, camera, renderer;
     const nails = {};
-
     let handLandmarker;
 
-    // ✅ Оновлений шейдер без almond/stiletto/ballerina
+    // Оновлений шейдер без дитячих ефектів
     const NAIL_SHADER = {
       vertexShader: `
         varying vec2 vUv;
@@ -442,22 +445,43 @@
         varying vec2 vUv;
         varying vec3 vNormal;
         varying vec3 vViewPosition;
-
+        
         float sdBox(vec2 p, vec2 b) {
           vec2 d = abs(p) - b;
           return length(max(d, 0.0)) + min(max(d.x, d.y), 0.0);
         }
-
+        
         float sdRoundedBox(vec2 p, vec2 b, float r) {
           vec2 d = abs(p) - b + vec2(r);
           return length(max(d, 0.0)) - r + min(max(d.x, d.y), -r);
         }
-
+        
         float sdEllipse(vec2 p, vec2 r) {
           vec2 q = abs(p / r) - vec2(1.0);
           return length(max(q, 0.0)) + min(max(q.x, q.y), 0.0);
         }
-
+        
+        float sdAlmond(vec2 p) {
+          float a = 0.45;
+          float b = 0.25;
+          vec2 q = abs(p);
+          q.x = mix(q.x, a * (1.0 - q.y / b), step(q.y, b));
+          return length(q) - a;
+        }
+        
+        float sdStiletto(vec2 p) {
+          float taper = 0.3;
+          vec2 q = abs(p);
+          q.x = mix(q.x, taper * q.y, step(q.y, 0.8));
+          return length(q) - 0.45;
+        }
+        
+        float sdBallerina(vec2 p) {
+          vec2 q = abs(p);
+          q.x = mix(q.x, 0.4 + 0.1 * sin(q.y * 3.14 / 0.9), step(q.y, 0.9));
+          return length(q) - 0.45;
+        }
+        
         float ovalMask(vec2 uv) {
           vec2 center = vec2(0.5, 0.5);
           vec2 p = uv - center;
@@ -465,14 +489,14 @@
           float dist = sdEllipse(p, r);
           return 1.0 - smoothstep(0.0, 0.02, dist);
         }
-
+        
         float roundMask(vec2 uv) {
           vec2 center = vec2(0.5, 0.5);
           vec2 p = uv - center;
           float dist = length(p);
           return 1.0 - smoothstep(0.48, 0.50, dist);
         }
-
+        
         float squareMask(vec2 uv) {
           vec2 center = vec2(0.5, 0.5);
           vec2 p = uv - center;
@@ -480,7 +504,7 @@
           float dist = sdBox(p, b);
           return 1.0 - smoothstep(0.0, 0.02, dist);
         }
-
+        
         float squovalMask(vec2 uv) {
           vec2 center = vec2(0.5, 0.5);
           vec2 p = uv - center;
@@ -489,13 +513,34 @@
           float dist = sdRoundedBox(p, b, r);
           return 1.0 - smoothstep(0.0, 0.02, dist);
         }
-
+        
+        float almondMask(vec2 uv) {
+          vec2 center = vec2(0.5, 0.5);
+          vec2 p = uv - center;
+          float dist = sdAlmond(p);
+          return 1.0 - smoothstep(0.0, 0.02, dist);
+        }
+        
+        float stilettoMask(vec2 uv) {
+          vec2 center = vec2(0.5, 0.5);
+          vec2 p = uv - center;
+          float dist = sdStiletto(p);
+          return 1.0 - smoothstep(0.0, 0.02, dist);
+        }
+        
+        float ballerinaMask(vec2 uv) {
+          vec2 center = vec2(0.5, 0.5);
+          vec2 p = uv - center;
+          float dist = sdBallerina(p);
+          return 1.0 - smoothstep(0.0, 0.02, dist);
+        }
+        
         void main() {
           vec4 texColor = texture2D(map, vUv);
           if (texColor.a < 0.1) discard;
           vec3 color = texColor.rgb;
-
           float mask = 1.0;
+          
           if (maskType == 0) {
             mask = ovalMask(vUv);
           } else if (maskType == 1) {
@@ -504,17 +549,26 @@
             mask = squareMask(vUv);
           } else if (maskType == 3) {
             mask = squovalMask(vUv);
+          } else if (maskType == 4) {
+            mask = almondMask(vUv);
+          } else if (maskType == 5) {
+            mask = stilettoMask(vUv);
+          } else if (maskType == 6) {
+            mask = ballerinaMask(vUv);
           }
-
+          
+          // Професійний ефект блиску без дитячих кольорів
           float shine = smoothstep(0.3, 0.7, vUv.y);
           shine = pow(shine, 2.0) * 0.3;
-          vec3 highlight = vec3(1.0) * shine * shineIntensity;
+          vec3 highlight = vec3(1.0, 1.0, 1.0) * shine * shineIntensity;
+          
           float fresnel = pow(1.0 - dot(normalize(vViewPosition), vNormal), 3.0);
-          vec3 rim = vec3(1.0) * fresnel * 0.2;
+          vec3 rim = vec3(1.0, 1.0, 1.0) * fresnel * 0.2;
+          
           float shadow = smoothstep(0.0, 0.25, vUv.y);
           color *= (1.0 - shadow * 0.15);
           color = color + highlight + rim;
-
+          
           gl_FragColor = vec4(color, texColor.a * mask);
         }
       `
@@ -522,6 +576,7 @@
 
     class NailARApplication {
       constructor() { this.init(); }
+      
       async init() {
         try {
           this.setupEventListeners();
@@ -538,7 +593,7 @@
           this.handleError(error);
         }
       }
-
+      
       unlockAudio() {
         const unlock = () => {
           if (state.isAudioUnlocked) return;
@@ -552,8 +607,9 @@
         document.addEventListener('click', unlock, { once: true });
         document.addEventListener('touchstart', unlock, { once: true });
       }
-
+      
       setupAudio() {}
+      
       toggleSound() {
         state.isMuted = !state.isMuted;
         if (state.isMuted) {
@@ -563,7 +619,7 @@
         }
         this.updateSoundButton();
       }
-
+      
       setupEventListeners() {
         elements.langBtn.addEventListener('click', () => this.toggleLanguage());
         elements.soundBtn.addEventListener('click', () => this.toggleSound());
@@ -579,7 +635,7 @@
         window.addEventListener('resize', () => this.handleResize());
         window.addEventListener('beforeunload', () => this.cleanup());
       }
-
+      
       async setupCamera() {
         try {
           const constraints = { 
@@ -604,7 +660,7 @@
           throw new Error('CAMERA_ERROR');
         }
       }
-
+      
       async initWebGL() {
         scene = new THREE.Scene();
         camera = new THREE.OrthographicCamera(
@@ -616,6 +672,7 @@
           1000
         );
         camera.position.z = 10;
+        
         renderer = new THREE.WebGLRenderer({
           canvas: elements.canvas,
           alpha: true,
@@ -624,9 +681,10 @@
         });
         renderer.setSize(window.innerWidth, window.innerHeight);
         renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        
         this.createNails();
       }
-
+      
       createNails() {
         const shaderMaterial = new THREE.ShaderMaterial({
           uniforms: {
@@ -642,7 +700,7 @@
           depthTest: false,
           depthWrite: false
         });
-
+        
         FINGER_KEYS.forEach(key => {
           const aspect = CONFIG.NAIL_ASPECT_RATIOS[key];
           const geometry = new THREE.PlaneGeometry(aspect, 1);
@@ -655,7 +713,7 @@
           scene.add(nail);
         });
       }
-
+      
       async setupHandTracking() {
         const vision = await FilesetResolver.forVisionTasks("https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.3/wasm");
         handLandmarker = await HandLandmarker.createFromOptions(vision, {
@@ -667,13 +725,13 @@
           numHands: 1
         });
       }
-
+      
       async loadResources() {
         await this.loadDesigns();
         this.buildDesignUI();
         this.buildMaskUI();
       }
-
+      
       async loadDesigns() {
         const loadImage = (name) => new Promise((resolve) => {
           const img = new Image();
@@ -689,6 +747,7 @@
           };
           img.onerror = () => {
             console.warn(`Failed to load design: ${name}`);
+            // Створюємо просту текстуру-замінник
             const canvas = document.createElement('canvas');
             canvas.width = 100; canvas.height = 170;
             const ctx = canvas.getContext('2d');
@@ -702,11 +761,13 @@
             resolve();
           };
         });
+        
         await Promise.all(DESIGNS.map(loadImage));
       }
-
+      
       buildDesignUI() {
         elements.designPicker.innerHTML = '';
+        
         DESIGNS.forEach(name => {
           const btn = document.createElement('img');
           btn.src = `designs/${name}.png`;
@@ -716,6 +777,7 @@
           btn.addEventListener('click', () => { this.selectDesign(name); });
           elements.designPicker.appendChild(btn);
         });
+        
         state.customDesigns.forEach((design) => {
           const btn = document.createElement('img');
           btn.src = design.url;
@@ -727,9 +789,10 @@
           elements.designPicker.appendChild(btn);
         });
       }
-
+      
       buildMaskUI() {
         elements.maskPicker.innerHTML = '';
+        
         MASKS.forEach((mask, index) => {
           const btn = document.createElement('div');
           btn.className = `mask-btn ${mask.id === state.currentMask ? 'selected' : ''}`;
@@ -738,11 +801,12 @@
           elements.maskPicker.appendChild(btn);
         });
       }
-
+      
       startRenderLoop() {
         const render = () => {
           this.detectHands();
           this.renderAR();
+          
           const time = performance.now() * 0.001;
           FINGER_KEYS.forEach(key => {
             const mat = nails[key].material;
@@ -751,16 +815,19 @@
               mat.uniforms.maskType.value = MASKS.findIndex(m => m.id === state.currentMask);
             }
           });
+          
           state.animationFrameId = requestAnimationFrame(render);
         };
         render();
       }
-
+      
       detectHands() {
         if (!handLandmarker || elements.video.readyState < 2) return;
+        
         try {
           state.frameTimestamp += 33;
           const predictions = handLandmarker.detectForVideo(elements.video, state.frameTimestamp);
+          
           if (predictions.landmarks?.length > 0) {
             state.handNotDetectedCount = 0;
             this.hideHandIndicator();
@@ -779,18 +846,19 @@
           console.error('Hand detection error:', error);
         }
       }
-
+      
       calculateHandSize(landmarks) {
         const wristStart = landmarks[0];
         const wristEnd = landmarks[1];
         const wristDistance = Math.hypot(wristStart.x - wristEnd.x, wristStart.y - wristEnd.y);
         state.wristDistance = wristDistance;
+        
         let scaleFactor = wristDistance / CONFIG.WRIST_DISTANCE_REF * CONFIG.SCALE_SENSITIVITY;
         scaleFactor = Math.min(scaleFactor, CONFIG.MAX_SCALE_FACTOR);
         scaleFactor = Math.max(scaleFactor, CONFIG.MIN_SCALE_FACTOR);
         state.currentHandSize = scaleFactor;
       }
-
+      
       updatePalmOrientation(landmarks) {
         const wrist = landmarks[0];
         const middleMCP = landmarks[9];
@@ -799,25 +867,28 @@
           y: (middleMCP.y - wrist.y) * window.innerHeight
         };
       }
-
+      
       smoothLandmarks(newLandmarks) {
         if (!state.smoothedLandmarks) {
           state.smoothedLandmarks = newLandmarks.map(lm => ({ ...lm }));
           return state.smoothedLandmarks;
         }
+        
         for (let i = 0; i < newLandmarks.length; i++) {
           state.smoothedLandmarks[i].x = this.lerp(state.smoothedLandmarks[i].x, newLandmarks[i].x, CONFIG.SMOOTHING_FACTOR);
           state.smoothedLandmarks[i].y = this.lerp(state.smoothedLandmarks[i].y, newLandmarks[i].y, CONFIG.SMOOTHING_FACTOR);
         }
+        
         return state.smoothedLandmarks;
       }
-
+      
       lerp(start, end, factor) { 
         return start * (1 - factor) + end * factor; 
       }
-
+      
       renderAR() {
         if (!state.lastLandmarks) return;
+        
         FINGER_KEYS.forEach((key, index) => {
           const nail = nails[key];
           if (!state.isApplyAll && index !== state.selectedFingerIndex) {
@@ -827,127 +898,150 @@
           this.updateNailPosition(key);
           nail.visible = true;
         });
+        
         renderer.render(scene, camera);
       }
-
+      
       updateNailPosition(fingerKey) {
         const landmarks = state.lastLandmarks;
         const nail = nails[fingerKey];
+        
         if (fingerKey === 'thumb') {
           this.updateThumbNailPosition(fingerKey, landmarks);
         } else {
           this.updateFingerNailPosition(fingerKey, landmarks);
         }
+        
         let texture = nailTextures[state.currentDesign];
         if (!texture) {
           const customDesign = state.customDesigns.find(d => d.id === state.currentDesign);
           if (customDesign) texture = customDesign.texture;
         }
+        
         if (texture) {
           nail.material.uniforms.map.value = texture;
           nail.material.needsUpdate = true;
         }
       }
-
+      
       updateThumbNailPosition(fingerKey, landmarks) {
         const nail = nails[fingerKey];
         const { tip, mcp, ip } = FINGER_INDICES[fingerKey];
+        
         const tipLandmark = landmarks[tip];
         const mcpLandmark = landmarks[mcp];
         const ipLandmark = landmarks[ip];
+        
         const thumbDirection = { 
           x: tipLandmark.x - landmarks[0].x, 
           y: tipLandmark.y - landmarks[0].y 
         };
+        
         const thumbOffset = {
           x: CONFIG.NAIL_OFFSETS.thumb.x - Math.min(Math.hypot(thumbDirection.x, thumbDirection.y) * 5, 0.02),
           y: CONFIG.NAIL_OFFSETS.thumb.y
         };
+        
         const screenX = (tipLandmark.x + thumbOffset.x) * window.innerWidth;
         const screenY = (1 - (tipLandmark.y + thumbOffset.y)) * window.innerHeight;
+        
         const thumbLength = Math.hypot(
           (tipLandmark.x - mcpLandmark.x) * window.innerWidth,
           (tipLandmark.y - mcpLandmark.y) * window.innerHeight
         );
+        
         let nailHeight = thumbLength * CONFIG.NAIL_SCALE_FACTORS.thumb * state.currentHandSize;
         nailHeight = Math.max(CONFIG.MIN_SIZE, Math.min(CONFIG.MAX_SIZE, nailHeight));
+        
         const angle = Math.atan2(tipLandmark.y - ipLandmark.y, tipLandmark.x - ipLandmark.x);
+        
         nail.position.set(screenX - window.innerWidth / 2, screenY - window.innerHeight / 2, 0);
         const aspect = CONFIG.NAIL_ASPECT_RATIOS[fingerKey];
         nail.scale.set(nailHeight * aspect, nailHeight, 1);
         nail.rotation.z = angle;
       }
-
+      
       updateFingerNailPosition(fingerKey, landmarks) {
         const nail = nails[fingerKey];
         const { tip, pip } = FINGER_INDICES[fingerKey];
+        
         const tipLandmark = landmarks[tip];
         const pipLandmark = landmarks[pip];
         const offset = CONFIG.NAIL_OFFSETS[fingerKey];
+        
         const screenX = (tipLandmark.x + offset.x) * window.innerWidth;
         const screenY = (1 - (tipLandmark.y + offset.y)) * window.innerHeight;
+        
         const fingerLength = Math.hypot(
           (tipLandmark.x - pipLandmark.x) * window.innerWidth,
           (tipLandmark.y - pipLandmark.y) * window.innerHeight
         );
+        
         let nailHeight = fingerLength * CONFIG.NAIL_SCALE_FACTORS[fingerKey] * state.currentHandSize;
         nailHeight = Math.max(CONFIG.MIN_SIZE, Math.min(CONFIG.MAX_SIZE, nailHeight));
+        
         const angle = Math.atan2(tipLandmark.y - pipLandmark.y, tipLandmark.x - pipLandmark.x);
+        
         nail.position.set(screenX - window.innerWidth / 2, screenY - window.innerHeight / 2, 0);
         const aspect = CONFIG.NAIL_ASPECT_RATIOS[fingerKey];
         nail.scale.set(nailHeight * aspect, nailHeight, 1);
         nail.rotation.z = angle;
       }
-
+      
       hideAllNails() {
         FINGER_KEYS.forEach(key => nails[key].visible = false);
         renderer.render(scene, camera);
       }
-
+      
       handleCanvasClick(event) {
         if (state.isApplyAll || !state.lastLandmarks) return;
+        
         event.preventDefault();
         const rect = elements.canvas.getBoundingClientRect();
         const x = (event.clientX || event.touches[0].clientX) - rect.left;
         const y = (event.clientY || event.touches[0].clientY) - rect.top;
+        
         state.selectedFingerIndex = this.getClosestFinger(x, y);
       }
-
+      
       getClosestFinger(touchX, touchY) {
         let minDist = Infinity, closestIndex = -1;
+        
         FINGER_KEYS.forEach((key, index) => {
           const tipIndex = FINGER_INDICES[key].tip;
           const landmark = state.lastLandmarks[tipIndex];
           const x = landmark.x * window.innerWidth;
           const y = (1 - landmark.y) * window.innerHeight;
           const dist = Math.hypot(touchX - x, touchY - y);
+          
           if (dist < minDist && dist < window.innerWidth * 0.1) {
             minDist = dist;
             closestIndex = index;
           }
         });
+        
         return closestIndex;
       }
-
+      
       toggleLanguage() {
         state.currentLang = state.currentLang === 'en' ? 'uk' : 'en';
         this.updateUI();
         elements.langBtn.textContent = state.currentLang === 'en' ? 'UK' : 'EN';
       }
-
+      
       setApplyAllMode() {
         state.isApplyAll = true;
         state.selectedFingerIndex = -1;
         elements.applyAllBtn.classList.add('active');
         elements.selectFingerBtn.classList.remove('active');
       }
-
+      
       setSelectFingerMode() {
         state.isApplyAll = false;
         elements.applyAllBtn.classList.remove('active');
         elements.selectFingerBtn.classList.add('active');
       }
-
+      
       selectDesign(name) {
         state.currentDesign = name;
         document.querySelectorAll('.design-btn').forEach(btn => {
@@ -955,21 +1049,22 @@
             btn.src.includes(`${name}.png`) || btn.dataset.id === name);
         });
       }
-
+      
       selectMask(maskId, index) {
         state.currentMask = maskId;
         document.querySelectorAll('.mask-btn').forEach((btn, i) => {
           btn.classList.toggle('selected', i === index);
         });
       }
-
+      
       uploadDesign() {
         elements.designUpload.click();
       }
-
+      
       handleDesignUpload(event) {
         const file = event.target.files[0];
         if (!file) return;
+        
         const reader = new FileReader();
         reader.onload = (e) => {
           const img = new Image();
@@ -981,12 +1076,14 @@
             texture.magFilter = THREE.LinearFilter;
             texture.format = THREE.RGBAFormat;
             texture.generateMipmaps = false;
+            
             const designId = `custom_${Date.now()}`;
             state.customDesigns.push({
               id: designId,
               url: e.target.result,
               texture: texture
             });
+            
             this.buildDesignUI();
             this.selectDesign(designId);
           };
@@ -995,7 +1092,7 @@
         reader.readAsDataURL(file);
         event.target.value = '';
       }
-
+      
       updateUI() {
         const t = translations[state.currentLang];
         document.title = t.title;
@@ -1008,44 +1105,47 @@
         elements.langBtn.textContent = state.currentLang === 'en' ? 'UK' : 'EN';
         this.updateSoundButton();
       }
-
+      
       updateSoundButton() {
         elements.soundBtn.textContent = state.isMuted ? 'Muted' : 'Sound';
       }
-
+      
       showCameraIndicator() {
         elements.cameraIndicator.classList.add('show');
         setTimeout(() => elements.cameraIndicator.classList.remove('show'), 3000);
       }
-
+      
       showHandIndicator() { 
         elements.handIndicator.classList.add('show'); 
       }
-
+      
       hideHandIndicator() { 
         elements.handIndicator.classList.remove('show'); 
       }
-
+      
       hideLoading() {
         elements.loading.style.display = 'none';
         elements.video.style.display = 'block';
         elements.canvas.style.display = 'block';
       }
-
+      
       handleResize() {
         if (!camera || !renderer) return;
+        
         camera.left = -window.innerWidth / 2;
         camera.right = window.innerWidth / 2;
         camera.top = window.innerHeight / 2;
         camera.bottom = -window.innerHeight / 2;
         camera.updateProjectionMatrix();
+        
         renderer.setSize(window.innerWidth, window.innerHeight);
       }
-
+      
       handleError(error) {
         console.error('App error:', error);
         const t = translations[state.currentLang];
         let message = error.message === 'CAMERA_ERROR' ? t.cameraError : t.arError;
+        
         elements.loading.innerHTML = `
           <div style="color: #667eea; font-size: 24px; margin-bottom: 20px;">Error</div>
           <div style="color: white; font-size: 18px; margin-bottom: 20px; line-height: 1.4;">${message}</div>
@@ -1054,7 +1154,7 @@
         elements.loading.style.display = 'flex';
         document.getElementById('errorRetry').addEventListener('click', () => location.reload());
       }
-
+      
       cleanup() {
         if (state.animationFrameId) cancelAnimationFrame(state.animationFrameId);
         if (elements.video.srcObject) elements.video.srcObject.getTracks().forEach(track => track.stop());
