@@ -271,11 +271,11 @@
   <img id="photoInput" alt="Hand photo for calibration">
   <canvas id="canvas"></canvas>
   <canvas id="confettiCanvas"></canvas>
-  <input type="file" id="designUpload" accept="image/*" multiple style="display: none;">
+  <input type="file" id="designUpload" accept="image/*" style="display: none;">
   <input type="file" id="photoUpload" accept="image/*" style="display: none;">
   <button id="langBtn" class="control-btn" aria-label="Switch language">UK</button>
   <button id="soundBtn" class="control-btn" aria-label="Toggle sound">Sound</button>
-  <button id="uploadBtn" class="control-btn" aria-label="Upload custom designs from gallery">📁</button>
+  <button id="uploadBtn" class="control-btn" aria-label="Upload custom design">📁</button>
   <button id="photoUploadBtn" class="control-btn" aria-label="Upload hand photo for calibration">📸</button>
   <a href="https://smartlessa.etsy.com" target="_blank" rel="noopener" id="authorBtn" aria-label="Author: smartlessa.etsy.com">
     Author
@@ -441,7 +441,7 @@
     const nailTextures = {};
     let scene, camera, renderer;
     const nails = {};  // Now per hand: nails.left, nails.right
-    let handLandmarker;
+    let handLandmarkerVideo, handLandmarkerImage;
     const NAIL_SHADER = {
       vertexShader: `
         varying vec2 vUv;
@@ -643,7 +643,7 @@
       setupEventListeners() {
         elements.langBtn.addEventListener('click', () => this.toggleLanguage());
         elements.soundBtn.addEventListener('click', () => this.toggleSound());
-        elements.uploadBtn.addEventListener('click', () => this.uploadDesigns());
+        elements.uploadBtn.addEventListener('click', () => this.uploadDesign());
         elements.designUpload.addEventListener('change', (e) => this.handleDesignUpload(e));
         elements.photoUploadBtn.addEventListener('click', () => this.uploadHandPhoto());
         elements.photoUpload.addEventListener('change', (e) => this.handleHandPhotoUpload(e));
@@ -726,13 +726,22 @@
       }
       async setupHandTracking() {
         const vision = await FilesetResolver.forVisionTasks("https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.3/wasm");
-        handLandmarker = await HandLandmarker.createFromOptions(vision, {
+        // Create separate landmarkers for VIDEO and IMAGE modes
+        handLandmarkerVideo = await HandLandmarker.createFromOptions(vision, {
           baseOptions: {
             modelAssetPath: "https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/1/hand_landmarker.task",
             delegate: "GPU"
           },
-          runningMode: "VIDEO",  // For photo mode, we'll switch to IMAGE temporarily
+          runningMode: "VIDEO",
           numHands: 2  // Support both hands
+        });
+        handLandmarkerImage = await HandLandmarker.createFromOptions(vision, {
+          baseOptions: {
+            modelAssetPath: "https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/1/hand_landmarker.task",
+            delegate: "GPU"
+          },
+          runningMode: "IMAGE",
+          numHands: 2
         });
       }
       async loadResources() {
@@ -803,7 +812,9 @@
       startRenderLoop() {
         const render = (currentTime) => {
           if (currentTime - state.lastRenderTime >= 1000 / CONFIG.TARGET_FPS) {
-            this.detectHands();
+            if (!state.isPhotoMode) {
+              this.detectHands();  // Detect only in video mode
+            }
             this.renderAR();
             this.updateConfetti();
             this.updateRainbowShine();
@@ -842,12 +853,13 @@
       }
       detectHands() {
         const inputSource = state.isPhotoMode ? elements.photoInput : elements.video;
-        if (!handLandmarker || inputSource.readyState < 2) return;
+        const landmarker = state.isPhotoMode ? handLandmarkerImage : handLandmarkerVideo;
+        if (!landmarker || (state.isPhotoMode ? !inputSource.complete : inputSource.readyState < 2)) return;
         try {
-          state.frameTimestamp = performance.now();  // Use real timestamp instead of fixed +33
+          state.frameTimestamp = performance.now();  // Use real timestamp
           const predictions = state.isPhotoMode 
-            ? handLandmarker.detectForImage(elements.photoInput, state.frameTimestamp)
-            : handLandmarker.detectForVideo(inputSource, state.frameTimestamp);
+            ? landmarker.detectForImage(inputSource, state.frameTimestamp)
+            : landmarker.detectForVideo(inputSource, state.frameTimestamp);
           state.detectedHands = [];
           if (predictions.landmarks?.length > 0) {
             state.handNotDetectedCount = 0;
@@ -859,7 +871,7 @@
               this.updatePalmOrientation(landmarks, handSide);
               this.calculateHandSize(landmarks);
             });
-            state.lastLandmarks = state.detectedHands.map(h => h.landmarks);  // Simplified; handle multiple
+            state.lastLandmarks = state.detectedHands[0]?.landmarks || null;  // Use first hand for simplicity
           } else {
             state.handNotDetectedCount++;
             if (state.handNotDetectedCount > CONFIG.HAND_NOT_DETECTED_THRESHOLD) {
@@ -1057,51 +1069,35 @@
           btn.classList.toggle('selected', i === index);
         });
       }
-      uploadDesigns() {
-        elements.designUpload.click();  // Now multiple for gallery
+      uploadDesign() {
+        elements.designUpload.click();
       }
       handleDesignUpload(event) {
-        Array.from(event.target.files).forEach(file => {
-          if (!file.type.startsWith('image/')) return;
-          const reader = new FileReader();
-          reader.onload = (e) => {
-            const img = new Image();
-            img.onload = () => {
-              // Resize for perf
-              const canvas = document.createElement('canvas');
-              const ctx = canvas.getContext('2d');
-              const maxDim = 512;
-              const { width, height } = img;
-              if (width > maxDim || height > maxDim) {
-                const scale = Math.min(maxDim / width, maxDim / height);
-                canvas.width = width * scale;
-                canvas.height = height * scale;
-                ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-              } else {
-                canvas.width = width;
-                canvas.height = height;
-                ctx.drawImage(img, 0, 0);
-              }
-              const texture = new THREE.CanvasTexture(canvas);
-              texture.wrapS = THREE.ClampToEdgeWrapping;
-              texture.wrapT = THREE.ClampToEdgeWrapping;
-              texture.minFilter = THREE.LinearFilter;
-              texture.magFilter = THREE.LinearFilter;
-              texture.format = THREE.RGBAFormat;
-              texture.generateMipmaps = false;
-              const designId = `custom_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-              state.customDesigns.push({
-                id: designId,
-                url: e.target.result,
-                texture: texture
-              });
-              this.buildDesignUI();
-              this.selectDesign(designId);
-            };
-            img.src = e.target.result;
+        const file = event.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const img = new Image();
+          img.onload = () => {
+            const texture = new THREE.CanvasTexture(img);
+            texture.wrapS = THREE.ClampToEdgeWrapping;
+            texture.wrapT = THREE.ClampToEdgeWrapping;
+            texture.minFilter = THREE.LinearFilter;
+            texture.magFilter = THREE.LinearFilter;
+            texture.format = THREE.RGBAFormat;
+            texture.generateMipmaps = false;
+            const designId = `custom_${Date.now()}`;
+            state.customDesigns.push({
+              id: designId,
+              url: e.target.result,
+              texture: texture
+            });
+            this.buildDesignUI();
+            this.selectDesign(designId);
           };
-          reader.readAsDataURL(file);
-        });
+          img.src = e.target.result;
+        };
+        reader.readAsDataURL(file);
         event.target.value = '';
       }
       uploadHandPhoto() {
@@ -1117,8 +1113,7 @@
             state.isPhotoMode = true;
             elements.video.style.display = 'none';
             elements.photoInput.style.display = 'block';
-            // Switch to IMAGE mode for detection
-            handLandmarker.setOptions({ runningMode: 'IMAGE' });
+            this.detectHands();  // Detect once for photo
             this.updateUI();  // Update to show photo mode
             document.querySelector('#loading p').textContent = translations[state.currentLang].photoCalib;
           };
@@ -1194,7 +1189,8 @@
       cleanup() {
         if (state.animationFrameId) cancelAnimationFrame(state.animationFrameId);
         if (elements.video.srcObject) elements.video.srcObject.getTracks().forEach(track => track.stop());
-        if (handLandmarker) handLandmarker.close();
+        if (handLandmarkerVideo) handLandmarkerVideo.close();
+        if (handLandmarkerImage) handLandmarkerImage.close();
       }
     }
     window.addEventListener('DOMContentLoaded', () => {
