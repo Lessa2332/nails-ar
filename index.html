@@ -718,65 +718,64 @@
         this.buildDesignUI();
         this.buildMaskUI();
       }
-      async loadDesigns() {
-        const loadImage = (name) => new Promise((resolve) => {
-          const img = new Image();
-          // Removed crossOrigin="anonymous" to fix loading issues for local/same-origin images
-         
-          // ВИПРАВЛЕННЯ: Детальна перевірка завантаження
-          const imagePath = `nails/halloween/${name}.png`;
-          console.log(`🔄 Loading design: ${imagePath}`);
-         
-          img.src = imagePath;
-         
-          img.onload = () => {
-            console.log(`✅ Successfully loaded: ${imagePath}`);
-           
-            // Створюємо текстуру з правильними налаштуваннями
-            const texture = new THREE.CanvasTexture(img);
-            texture.wrapS = THREE.ClampToEdgeWrapping;
-            texture.wrapT = THREE.ClampToEdgeWrapping;
-            texture.minFilter = THREE.LinearFilter;
-            texture.magFilter = THREE.LinearFilter;
-            texture.format = THREE.RGBAFormat;
-            texture.generateMipmaps = false;
-           
-            nailTextures[name] = texture;
-            console.log(`✅ Texture created for: ${name}`);
-            resolve();
-          };
-         
-          img.onerror = (e) => {
-            console.error(`❌ FAILED to load: ${imagePath}`, e);
-           
-            // Створюємо placeholder
-            const canvas = document.createElement('canvas');
-            canvas.width = 100;
-            canvas.height = 170;
-            const ctx = canvas.getContext('2d');
-           
-            const colors = ['#00c6ff', '#ff6b6b', '#ffd700'];
-            ctx.fillStyle = colors[parseInt(name) - 1] || '#00c6ff';
-            ctx.fillRect(0, 0, 100, 170);
-           
-            ctx.fillStyle = 'white';
-            ctx.font = '16px Arial';
-            ctx.textAlign = 'center';
-            ctx.fillText(`Design ${name}`, 50, 90);
-           
-            const texture = new THREE.CanvasTexture(canvas);
-            nailTextures[name] = texture;
-            console.log(`🔄 Using placeholder for: ${name}`);
-            resolve();
-          };
-        });
-       
-        await Promise.all(DESIGNS.map(loadImage));
-       
-        // Оновлюємо матеріали після завантаження всіх текстур
-        this.updateNailMaterials();
-        console.log('✅ All nail materials updated');
-      }
+async loadDesigns() {
+  const loadImage = (name) => new Promise((resolve) => {
+    const img = new Image();
+    // Без crossOrigin для локальних файлів — фіксить CORS-блоку
+    const imagePath = `nails/halloween/${name}.png`;
+    console.log(`🔄 Loading design: ${imagePath}`);
+    
+    img.src = imagePath;
+    
+    img.onload = () => {
+      console.log(`✅ Successfully loaded: ${imagePath}`);
+      
+      // Створюємо текстуру з правильними налаштуваннями (як у другому коді)
+      const texture = new THREE.CanvasTexture(img);
+      texture.wrapS = THREE.ClampToEdgeWrapping;
+      texture.wrapT = THREE.ClampToEdgeWrapping;
+      texture.minFilter = THREE.LinearFilter;
+      texture.magFilter = THREE.LinearFilter;
+      texture.format = THREE.RGBAFormat;
+      texture.generateMipmaps = false;
+      
+      nailTextures[name] = texture;
+      console.log(`✅ Texture created for: ${name}`);
+      resolve();
+    };
+    
+    img.onerror = (e) => {
+      console.error(`❌ FAILED to load: ${imagePath}`, e);
+      
+      // Плейсхолдер з кольоровим фоном (адаптовано з другого коду, як у Halloween)
+      const canvas = document.createElement('canvas');
+      canvas.width = 100;
+      canvas.height = 170;
+      const ctx = canvas.getContext('2d');
+      
+      // Кольори для New Year теми: синій/червоний/золотий
+      const colors = ['#00c6ff', '#ff6b6b', '#ffd700'];
+      ctx.fillStyle = colors[parseInt(name) - 1] || '#00c6ff';
+      ctx.fillRect(0, 0, 100, 170);
+      
+      ctx.fillStyle = 'white';
+      ctx.font = '16px Arial';
+      ctx.textAlign = 'center';
+      ctx.fillText(`Design ${name}`, 50, 90);
+      
+      const texture = new THREE.CanvasTexture(canvas);
+      nailTextures[name] = texture;
+      console.log(`🔄 Using placeholder for: ${name}`);
+      resolve();
+    };
+  });
+  
+  await Promise.all(DESIGNS.map(loadImage));
+  
+  // Оновлюємо матеріали після завантаження (як у другому)
+  this.updateNailMaterials();
+  console.log('✅ All nail materials updated');
+}
       // НОВА ФУНКЦІЯ: Оновлення матеріалів нігтів
       updateNailMaterials() {
         FINGER_KEYS.forEach(key => {
@@ -1162,3 +1161,4 @@
   </script>
 </body>
 </html>
+
