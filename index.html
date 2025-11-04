@@ -306,8 +306,20 @@
     const CONFIG = {
       SMOOTHING_FACTOR: 0.7,
       HAND_NOT_DETECTED_THRESHOLD: 10,
-      NAIL_SCALE_FACTORS: { thumb: 0.42, index: 0.52, middle: 0.54, ring: 0.52, pinky: 0.40 },
-      NAIL_ASPECT_RATIOS: { thumb: 0.58, index: 0.65, middle: 0.68, ring: 0.65, pinky: 0.70 },
+      NAIL_SCALE_FACTORS: {
+        thumb: 0.35,
+        index: 0.45,
+        middle: 0.47,
+        ring: 0.45,
+        pinky: 0.35
+      },
+      NAIL_ASPECT_RATIOS: {
+        thumb: 0.75,
+        index: 0.80,
+        middle: 0.82,
+        ring: 0.80,
+        pinky: 0.85
+      },
       NAIL_OFFSETS: {
         thumb: { x: -0.01, y: -0.02 },
         index: { x: 0, y: -0.02 },
@@ -315,7 +327,8 @@
         ring: { x: 0, y: -0.02 },
         pinky: { x: 0.005, y: -0.015 }
       },
-      MIN_SIZE: 25, MAX_SIZE: 85,
+      MIN_SIZE: 25,
+      MAX_SIZE: 85,
       WRIST_DISTANCE_REF: 0.1,
       SCALE_SENSITIVITY: 1.8,
       MAX_SCALE_FACTOR: 2.0,
@@ -376,7 +389,7 @@
       rainbowTime: 0,
       isAudioUnlocked: false,
       customDesigns: [],
-      frameTimestamp: 0 // ← для виправлення MediaPipe
+      frameTimestamp: 0
     };
 
     const elements = {
@@ -408,26 +421,28 @@
     resizeCanvases();
     window.addEventListener('resize', resizeCanvases);
 
-    // AUDIO
     const audio = {
       bgMusic: new Audio('audio/bg-music.mp3')
     };
     audio.bgMusic.loop = true;
     audio.bgMusic.volume = 0.4;
 
-    // Дизайни — лише 1.png, 2.png, 3.png з папки newyear/
     const DESIGNS = ["1", "2", "3"];
 
-    // Маски: додано 3 нові реалістичні форми
     const MASKS = [
       { id: "none", name: "None" },
-      { id: "oval", name: "Oval" },
-      { id: "rounded-square", name: "Rounded Square" },
-      { id: "fleur", name: "Fleur" },
-      { id: "gel", name: "Gel Effect" },
       { id: "square", name: "Square" },
+      { id: "squared_oval", name: "Squared Oval" },
+      { id: "oval", name: "Oval" },
+      { id: "rounded", name: "Rounded" },
+      { id: "almond", name: "Almond" },
+      { id: "mountain_peak", name: "Mountain Peak" },
       { id: "stiletto", name: "Stiletto" },
-      { id: "coffin", name: "Coffin" }
+      { id: "ballerina", name: "Ballerina" },
+      { id: "edge", name: "Edge" },
+      { id: "lipstick", name: "Lipstick" },
+      { id: "flare", name: "Flare" },
+      { id: "arrow_head", name: "Arrow Head" }
     ];
 
     const nailTextures = {};
@@ -501,6 +516,40 @@
           if (d.x < size - edge && d.y < size - edge) return 1.0;
           return 1.0 - smoothstep(size - edge, size, max(d.x, d.y));
         }
+        float squovalMask(vec2 uv) {
+          vec2 center = vec2(0.5, 0.5);
+          vec2 d = uv - center;
+          float dx = d.x * 1.2;
+          float dy = d.y * 0.8;
+          float r = sqrt(dx*dx + dy*dy);
+          return 1.0 - smoothstep(0.45, 0.5, r);
+        }
+        float roundedMask(vec2 uv) {
+          vec2 center = vec2(0.5, 0.5);
+          vec2 d = uv - center;
+          float r = length(d);
+          return 1.0 - smoothstep(0.45, 0.5, r);
+        }
+        float almondMask(vec2 uv) {
+          vec2 center = vec2(0.5, 0.5);
+          vec2 d = uv - center;
+          float dx = d.x * 1.5;
+          float dy = d.y * 1.2;
+          float r = sqrt(dx*dx + dy*dy);
+          float angle = atan(dy, dx);
+          float shape = 0.5 + 0.3 * cos(4.0 * angle);
+          return 1.0 - smoothstep(shape - 0.05, shape, r);
+        }
+        float mountainPeakMask(vec2 uv) {
+          vec2 center = vec2(0.5, 0.5);
+          vec2 d = uv - center;
+          float dx = d.x * 1.5;
+          float dy = d.y * 1.2;
+          float r = sqrt(dx*dx + dy*dy);
+          float angle = atan(dy, dx);
+          float shape = 0.5 + 0.3 * cos(5.0 * angle + 3.14159);
+          return 1.0 - smoothstep(shape - 0.05, shape, r);
+        }
         float stilettoMask(vec2 uv) {
           vec2 center = vec2(0.5, 0.5);
           vec2 d = uv - center;
@@ -511,7 +560,7 @@
           float shape = 0.5 + 0.3 * cos(5.0 * angle);
           return 1.0 - smoothstep(shape - 0.05, shape, r);
         }
-        float coffinMask(vec2 uv) {
+        float ballerinaMask(vec2 uv) {
           vec2 center = vec2(0.5, 0.5);
           vec2 d = uv - center;
           float dx = d.x * 1.3;
@@ -521,26 +570,78 @@
           float shape = 0.5 + 0.2 * cos(4.0 * angle + 3.14159);
           return 1.0 - smoothstep(shape - 0.05, shape, r);
         }
+        float edgeMask(vec2 uv) {
+          vec2 center = vec2(0.5, 0.5);
+          vec2 d = uv - center;
+          float dx = d.x * 1.5;
+          float dy = d.y * 1.0;
+          float r = sqrt(dx*dx + dy*dy);
+          float angle = atan(dy, dx);
+          float shape = 0.5 + 0.3 * cos(6.0 * angle);
+          return 1.0 - smoothstep(shape - 0.05, shape, r);
+        }
+        float lipstickMask(vec2 uv) {
+          vec2 center = vec2(0.5, 0.5);
+          vec2 d = uv - center;
+          float dx = d.x * 1.2;
+          float dy = d.y * 1.0;
+          float r = sqrt(dx*dx + dy*dy);
+          float angle = atan(dy, dx);
+          float shape = 0.5 + 0.2 * cos(4.0 * angle);
+          return 1.0 - smoothstep(shape - 0.05, shape, r);
+        }
+        float flareMask(vec2 uv) {
+          vec2 center = vec2(0.5, 0.5);
+          vec2 d = uv - center;
+          float dx = d.x * 1.4;
+          float dy = d.y * 1.0;
+          float r = sqrt(dx*dx + dy*dy);
+          float angle = atan(dy, dx);
+          float shape = 0.5 + 0.3 * cos(5.0 * angle);
+          return 1.0 - smoothstep(shape - 0.05, shape, r);
+        }
+        float arrowHeadMask(vec2 uv) {
+          vec2 center = vec2(0.5, 0.5);
+          vec2 d = uv - center;
+          float dx = d.x * 1.5;
+          float dy = d.y * 1.2;
+          float r = sqrt(dx*dx + dy*dy);
+          float angle = atan(dy, dx);
+          float shape = 0.5 + 0.3 * cos(6.0 * angle + 3.14159);
+          return 1.0 - smoothstep(shape - 0.05, shape, r);
+        }
         void main() {
           vec4 texColor = texture2D(map, vUv);
           if (texColor.a < 0.1) discard;
           vec3 color = texColor.rgb;
           float mask = 1.0;
           if (maskType == 1) {
-            mask = ovalMask(vUv);
+            mask = squareMask(vUv);
           } else if (maskType == 2) {
-            mask = roundedSquareMask(vUv);
+            mask = squovalMask(vUv);
           } else if (maskType == 3) {
-            mask = fleurMask(vUv);
+            mask = ovalMask(vUv);
           } else if (maskType == 4) {
+            mask = roundedMask(vUv);
+          } else if (maskType == 5) {
+            mask = almondMask(vUv);
+          } else if (maskType == 6) {
+            mask = mountainPeakMask(vUv);
+          } else if (maskType == 7) {
+            mask = stilettoMask(vUv);
+          } else if (maskType == 8) {
+            mask = ballerinaMask(vUv);
+          } else if (maskType == 9) {
+            mask = edgeMask(vUv);
+          } else if (maskType == 10) {
+            mask = lipstickMask(vUv);
+          } else if (maskType == 11) {
+            mask = flareMask(vUv);
+          } else if (maskType == 12) {
+            mask = arrowHeadMask(vUv);
+          } else if (maskType == 13) {
             float gel = gelEffect(vUv);
             color *= gel;
-          } else if (maskType == 5) {
-            mask = squareMask(vUv);
-          } else if (maskType == 6) {
-            mask = stilettoMask(vUv);
-          } else if (maskType == 7) {
-            mask = coffinMask(vUv);
           }
           float shine = smoothstep(0.3, 0.7, vUv.y + sin(vUv.y * 8.0 - time * 1.5) * 0.1);
           shine = pow(shine, 2.0) * 0.5;
@@ -734,7 +835,7 @@
         const loadImage = (name) => new Promise((resolve) => {
           const img = new Image();
           img.crossOrigin = "anonymous";
-          img.src = `newyear/${name}.png`; // ← ВИПРАВЛЕНО: шлях до файлів
+          img.src = `newyear/${name}.png`;
           img.onload = () => {
             const texture = new THREE.CanvasTexture(img);
             texture.minFilter = THREE.LinearFilter;
@@ -762,7 +863,7 @@
         elements.designPicker.innerHTML = '';
         DESIGNS.forEach(name => {
           const btn = document.createElement('img');
-          btn.src = `newyear/${name}.png`; // ← ВИПРАВЛЕНО
+          btn.src = `newyear/${name}.png`;
           btn.className = `design-btn ${name === state.currentDesign ? 'selected' : ''}`;
           btn.alt = `Design ${name}`;
           btn.loading = 'lazy';
@@ -831,8 +932,7 @@
       detectHands() {
         if (!handLandmarker || elements.video.readyState < 2) return;
         try {
-          // ✅ ВИПРАВЛЕНО: інкрементний таймстемп
-          state.frameTimestamp += 33; // ~30 FPS
+          state.frameTimestamp += 33;
           const predictions = handLandmarker.detectForVideo(elements.video, state.frameTimestamp);
           if (predictions.landmarks?.length > 0) {
             state.handNotDetectedCount = 0;
@@ -853,8 +953,7 @@
         }
       }
 
-      // ... (решта функцій без змін — updatePalmOrientation, smoothLandmarks, renderAR, тощо)
-
+      // ——— решта методів (без змін) ———
       calculateHandSize(landmarks) {
         const wristStart = landmarks[0];
         const wristEnd = landmarks[1];
