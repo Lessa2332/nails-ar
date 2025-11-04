@@ -444,7 +444,7 @@
       const snowflakesContainer = document.createElement('div');
       snowflakesContainer.id = 'snowflakes';
       document.body.appendChild(snowflakesContainer);
-     
+    
       for (let i = 0; i < 50; i++) {
         const snowflake = document.createElement('div');
         snowflake.className = 'snowflake';
@@ -457,14 +457,12 @@
         snowflakesContainer.appendChild(snowflake);
       }
     }
-    // ЛОКАЛЬНІ АУДІОФАЙЛИ - added click sound
+    // АУДІО: Тільки фонова музика, без кліку
     const audio = {
-      bgMusic: new Audio('audio/bg-music.mp3'),
-      click: new Audio('audio/click.mp3')
+      bgMusic: new Audio('audio/bg-music.mp3')
     };
     audio.bgMusic.loop = true;
     audio.bgMusic.volume = 0.4;
-    audio.click.volume = 0.5;
     const DESIGNS = ["1", "2", "3"]; // Keep as per repo files
     const MASKS = [
       { id: "none", name: "None" },
@@ -628,13 +626,6 @@
       setupAudio() {
         audio.bgMusic.pause();
       }
-      playSound(sound) { // Added back playSound function
-        if (state.isMuted || !state.isAudioUnlocked) return;
-        try {
-          sound.currentTime = 0;
-          sound.play().catch(() => {});
-        } catch (e) {}
-      }
       toggleSound() {
         state.isMuted = !state.isMuted;
         if (state.isMuted) {
@@ -643,7 +634,6 @@
           audio.bgMusic.play().catch(() => {});
         }
         this.updateSoundButton();
-        this.playSound(audio.click);
       }
       setupEventListeners() {
         elements.langBtn.addEventListener('click', () => this.toggleLanguage());
@@ -718,64 +708,64 @@
         this.buildDesignUI();
         this.buildMaskUI();
       }
-async loadDesigns() {
-  const loadImage = (name) => new Promise((resolve) => {
-    const img = new Image();
-    // Без crossOrigin для локальних файлів — фіксить CORS-блоку
-    const imagePath = `nails/halloween/${name}.png`;
-    console.log(`🔄 Loading design: ${imagePath}`);
-    
-    img.src = imagePath;
-    
-    img.onload = () => {
-      console.log(`✅ Successfully loaded: ${imagePath}`);
+      async loadDesigns() {
+        const loadImage = (name) => new Promise((resolve) => {
+          const img = new Image();
+          // Без crossOrigin для локальних файлів — фіксить CORS-блоку
+          const imagePath = `nails/halloween/${name}.png`;
+          console.log(`🔄 Loading design: ${imagePath}`);
+        
+          img.src = imagePath;
+        
+          img.onload = () => {
+            console.log(`✅ Successfully loaded: ${imagePath}`);
+          
+            // Створюємо текстуру з правильними налаштуваннями (як у другому коді)
+            const texture = new THREE.CanvasTexture(img);
+            texture.wrapS = THREE.ClampToEdgeWrapping;
+            texture.wrapT = THREE.ClampToEdgeWrapping;
+            texture.minFilter = THREE.LinearFilter;
+            texture.magFilter = THREE.LinearFilter;
+            texture.format = THREE.RGBAFormat;
+            texture.generateMipmaps = false;
+          
+            nailTextures[name] = texture;
+            console.log(`✅ Texture created for: ${name}`);
+            resolve();
+          };
+        
+          img.onerror = (e) => {
+            console.error(`❌ FAILED to load: ${imagePath}`, e);
+          
+            // Плейсхолдер з кольоровим фоном (адаптовано з другого коду, як у Halloween)
+            const canvas = document.createElement('canvas');
+            canvas.width = 100;
+            canvas.height = 170;
+            const ctx = canvas.getContext('2d');
+          
+            // Кольори для New Year теми: синій/червоний/золотий
+            const colors = ['#00c6ff', '#ff6b6b', '#ffd700'];
+            ctx.fillStyle = colors[parseInt(name) - 1] || '#00c6ff';
+            ctx.fillRect(0, 0, 100, 170);
+          
+            ctx.fillStyle = 'white';
+            ctx.font = '16px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText(`Design ${name}`, 50, 90);
+          
+            const texture = new THREE.CanvasTexture(canvas);
+            nailTextures[name] = texture;
+            console.log(`🔄 Using placeholder for: ${name}`);
+            resolve();
+          };
+        });
       
-      // Створюємо текстуру з правильними налаштуваннями (як у другому коді)
-      const texture = new THREE.CanvasTexture(img);
-      texture.wrapS = THREE.ClampToEdgeWrapping;
-      texture.wrapT = THREE.ClampToEdgeWrapping;
-      texture.minFilter = THREE.LinearFilter;
-      texture.magFilter = THREE.LinearFilter;
-      texture.format = THREE.RGBAFormat;
-      texture.generateMipmaps = false;
+        await Promise.all(DESIGNS.map(loadImage));
       
-      nailTextures[name] = texture;
-      console.log(`✅ Texture created for: ${name}`);
-      resolve();
-    };
-    
-    img.onerror = (e) => {
-      console.error(`❌ FAILED to load: ${imagePath}`, e);
-      
-      // Плейсхолдер з кольоровим фоном (адаптовано з другого коду, як у Halloween)
-      const canvas = document.createElement('canvas');
-      canvas.width = 100;
-      canvas.height = 170;
-      const ctx = canvas.getContext('2d');
-      
-      // Кольори для New Year теми: синій/червоний/золотий
-      const colors = ['#00c6ff', '#ff6b6b', '#ffd700'];
-      ctx.fillStyle = colors[parseInt(name) - 1] || '#00c6ff';
-      ctx.fillRect(0, 0, 100, 170);
-      
-      ctx.fillStyle = 'white';
-      ctx.font = '16px Arial';
-      ctx.textAlign = 'center';
-      ctx.fillText(`Design ${name}`, 50, 90);
-      
-      const texture = new THREE.CanvasTexture(canvas);
-      nailTextures[name] = texture;
-      console.log(`🔄 Using placeholder for: ${name}`);
-      resolve();
-    };
-  });
-  
-  await Promise.all(DESIGNS.map(loadImage));
-  
-  // Оновлюємо матеріали після завантаження (як у другому)
-  this.updateNailMaterials();
-  console.log('✅ All nail materials updated');
-}
+        // Оновлюємо матеріали після завантаження (як у другому)
+        this.updateNailMaterials();
+        console.log('✅ All nail materials updated');
+      }
       // НОВА ФУНКЦІЯ: Оновлення матеріалів нігтів
       updateNailMaterials() {
         FINGER_KEYS.forEach(key => {
@@ -789,12 +779,12 @@ async loadDesigns() {
       }
       buildDesignUI() {
         elements.designPicker.innerHTML = '';
-       
+      
         DESIGNS.forEach(name => {
           const btn = document.createElement('img');
           const imagePath = `nails/halloween/${name}.png`;
           console.log(`🔄 Creating UI button for: ${imagePath}`);
-         
+        
           btn.src = imagePath;
           btn.onerror = (e) => {
             console.error(`❌ UI image failed: ${imagePath}`, e);
@@ -811,7 +801,7 @@ async loadDesigns() {
             ctx.fillText(`Design ${name}`, 30, 45);
             btn.src = canvas.toDataURL();
           };
-         
+        
           btn.className = `design-btn ${name === state.currentDesign ? 'selected' : ''}`;
           btn.alt = `Design ${name}`;
           btn.dataset.id = name;
@@ -946,16 +936,16 @@ async loadDesigns() {
         } else {
           this.updateFingerNailPosition(fingerKey, landmarks);
         }
-       
+      
         let texture = nailTextures[state.currentDesign];
-       
+      
         if (!texture) {
           const customDesign = state.customDesigns.find(d => d.id === state.currentDesign);
           if (customDesign) {
             texture = customDesign.texture;
           }
         }
-       
+      
         if (texture) {
           nail.material.uniforms.map.value = texture;
           nail.material.needsUpdate = true;
@@ -1008,7 +998,6 @@ async loadDesigns() {
         const x = (event.clientX || event.touches[0].clientX) - rect.left;
         const y = (event.clientY || event.touches[0].clientY) - rect.top;
         state.selectedFingerIndex = this.getClosestFinger(x, y);
-        this.playSound(audio.click); // Added sound
       }
       getClosestFinger(touchX, touchY) {
         let minDist = Infinity, closestIndex = -1;
@@ -1029,31 +1018,27 @@ async loadDesigns() {
         state.currentLang = state.currentLang === 'en' ? 'uk' : 'en';
         this.updateUI();
         elements.langBtn.textContent = state.currentLang === 'en' ? 'UK' : 'EN';
-        this.playSound(audio.click); // Added sound
       }
       setApplyAllMode() {
         state.isApplyAll = true;
         state.selectedFingerIndex = -1;
         elements.applyAllBtn.classList.add('active');
         elements.selectFingerBtn.classList.remove('active');
-        this.playSound(audio.click); // Added sound
       }
       setSelectFingerMode() {
         state.isApplyAll = false;
         elements.applyAllBtn.classList.remove('active');
         elements.selectFingerBtn.classList.add('active');
-        this.playSound(audio.click); // Added sound
       }
       selectDesign(designId) {
         state.currentDesign = designId;
-       
+      
         // Оновлюємо матеріали при зміні дизайну
         this.updateNailMaterials();
-       
+      
         document.querySelectorAll('.design-btn').forEach(btn => {
           btn.classList.toggle('selected', btn.dataset.id === designId);
         });
-        this.playSound(audio.click); // Added sound
         this.triggerConfetti();
       }
       selectMask(maskId, index) {
@@ -1061,7 +1046,6 @@ async loadDesigns() {
         document.querySelectorAll('.mask-btn').forEach((btn, i) => {
           btn.classList.toggle('selected', i === index);
         });
-        this.playSound(audio.click); // Added sound
       }
       uploadDesign() {
         elements.designUpload.click();
@@ -1069,31 +1053,34 @@ async loadDesigns() {
       handleDesignUpload(event) {
         const file = event.target.files[0];
         if (!file) return;
-       
+      
         const reader = new FileReader();
         reader.onload = (e) => {
           const img = new Image();
           img.onload = () => {
             const texture = new THREE.CanvasTexture(img);
+            texture.wrapS = THREE.ClampToEdgeWrapping;
+            texture.wrapT = THREE.ClampToEdgeWrapping;
             texture.minFilter = THREE.LinearFilter;
             texture.magFilter = THREE.LinearFilter;
+            texture.format = THREE.RGBAFormat;
             texture.generateMipmaps = false;
-           
+          
             const designId = `custom_${Date.now()}`;
-           
+          
             state.customDesigns.push({
               id: designId,
               url: e.target.result,
               texture: texture
             });
-           
+          
             this.buildDesignUI();
             this.selectDesign(designId);
           };
           img.src = e.target.result;
         };
         reader.readAsDataURL(file);
-       
+      
         event.target.value = '';
       }
       triggerConfetti() {
@@ -1161,4 +1148,3 @@ async loadDesigns() {
   </script>
 </body>
 </html>
-
